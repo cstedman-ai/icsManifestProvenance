@@ -1,0 +1,54 @@
+
+2/26/2026
+
+Problem.LiamJones: CurrentProvenanceAndReconciliationOfProcuredItems
+
+# Problem Statement: Current Provenance and Reconciliation of Procured Items
+
+**Author:** Liam Jones
+**Date:** 2/26/2026
+
+---
+
+## Receiving Process Failures
+
+> **[12:30 PM]**
+
+The current receiving process — in regards to signing and documenting a packing list to show proof of a shipment received — has too many possible ways to fail:
+
+- **Missing packing list:** The vendor could miss sending the packing list, causing a slew of escalations through the global supply manager to track down the packing list.
+- **Damaged packing list:** The packing list could be damaged, which the same process of escalation would have to occur.
+- **Manual overhead:** The packing list consists of 10+ pages that need to be scanned and uploaded. File size is too large to upload. The whole manual process of printing, signing, dating, scanning, and uploading could all be resolved with a couple clicks.
+
+Receiving should be simple — not a mystery if there is a missing component due to process error / human error.
+
+---
+
+## Packing List Accessibility
+
+> **[12:32 PM]**
+
+Packing lists could also be lost upon receiving multiple trucks, moving 40+ pallets into a storage space. The list goes on and on.
+
+The packing list should live within the procurement ticket so it's accessible for anyone, anytime, anywhere — which provides:
+
+- Quantity sent versus quantity received
+- The ability to check each individual model and/or serial per device
+- Quantities
+- A timestamp and date with your signature for SOX compliance
+
+
+
+
+
+####Original:
+
+Liam Jones  [12:30 PM]
+The current receiving process in regards to signing and documenting a packing list to show proof of a shipment received, has too many possible ways to fail. 
+The vendor could miss sending the packing list, causing a slew of escalations through the global supply manager to track down the packing list. The packing list could be damaged, 
+which the same process of escalation would have to occur. The packing list consist of 10+ pages that need to be scanned and uploaded file size 2 large to upload the 
+whole manual process of printing signing dating scanning uploading could all be resolved with a couple clicks. 
+
+Receiving should be simple not a mystery if there is a missing component due to process error/human error.[12:32 PM]Packing list could also be lost upon receiving multiple trucks moving 
+40+ pallets into a storage space. The list goes on and on the packing list should live within the procurement ticket so it’s accessible for anyone anytime anywhere which provides quantity 
+sent versus quantity received the ability to check each individual model and or serial per device as well as quantities and a timestamp and date with your signature for SOX compliance.
