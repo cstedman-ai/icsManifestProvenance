@@ -22,8 +22,8 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
-  const login = (role, email) => {
-    setUser({ role, email, loggedInAt: new Date().toISOString() });
+  const login = (role, email, vendor = null) => {
+    setUser({ role, email, vendor, loggedInAt: new Date().toISOString() });
   };
 
   const logout = () => setUser(null);
