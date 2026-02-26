@@ -58,7 +58,9 @@ export default function Layout() {
         {user && (
           <div className="sidebar-user">
             <div className="sidebar-user-info">
-              <span className="sidebar-user-role">{user.role}</span>
+              <span className="sidebar-user-role">
+                {user.vendor ? user.vendor.shortName : user.role}
+              </span>
               <span className="sidebar-user-email">{user.email}</span>
             </div>
             <button
