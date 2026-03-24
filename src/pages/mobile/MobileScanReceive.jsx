@@ -24,6 +24,8 @@ import {
 
 const SCREEN = { SCANNER: 0, ANNOTATE: 1, CHECKLIST: 2, CONFIRM: 3 };
 const PEN_COLORS = ['#dc2626', '#2563eb', '#16a34a', '#000000', '#f59e0b'];
+const MAX_CANVAS_DIM = 2048;
+const SIG_INTERNAL_HEIGHT = 420;
 
 export default function MobileScanReceive() {
   const { state, dispatch } = useApp();
@@ -253,6 +255,7 @@ export default function MobileScanReceive() {
     return (
       <AnnotateScreen
         imageDataUrl={annotatingPhoto}
+        userEmail={user?.email || 'unknown'}
         onSave={handleAnnotationSaved}
         onBack={handleAnnotationBack}
       />
@@ -507,8 +510,17 @@ function ScannerScreen({ onScanResult, onPhotoCaptured, purchaseOrders, onSelect
 
 /* ─── Screen 1.5: Annotate Photo ─── */
 
-function AnnotateScreen({ imageDataUrl, onSave, onBack }) {
-  const canvasRef = useRef(null);
+function formatDateStamp() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}${m}${day}`;
+}
+
+function AnnotateScreen({ imageDataUrl, userEmail, onSave, onBack }) {
+  const photoCanvasRef = useRef(null);
+  const sigCanvasRef = useRef(null);
   const [tool, setTool] = useState('pen');
   const [color, setColor] = useState(PEN_COLORS[0]);
   const [lineWidth, setLineWidth] = useState(3);
@@ -516,32 +528,117 @@ function AnnotateScreen({ imageDataUrl, onSave, onBack }) {
   const [history, setHistory] = useState([]);
   const [textInput, setTextInput] = useState('');
   const [textPos, setTextPos] = useState(null);
+  const [isSigning, setIsSigning] = useState(false);
+  const [hasSigned, setHasSigned] = useState(false);
   const imgRef = useRef(null);
 
+  const dateStamp = formatDateStamp();
+
+  // Load photo onto the annotation canvas at full resolution
   useEffect(() => {
     const img = new window.Image();
     img.onload = () => {
       imgRef.current = img;
-      const canvas = canvasRef.current;
+      const canvas = photoCanvasRef.current;
       if (!canvas) return;
 
-      const container = canvas.parentElement;
-      const maxW = container.clientWidth;
-      const maxH = window.innerHeight * 0.6;
-      const scale = Math.min(maxW / img.width, maxH / img.height, 1);
-
-      canvas.width = img.width * scale;
-      canvas.height = img.height * scale;
+      const hiResScale = Math.min(MAX_CANVAS_DIM / Math.max(img.width, img.height), 1);
+      canvas.width = Math.round(img.width * hiResScale);
+      canvas.height = Math.round(img.height * hiResScale);
 
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      drawStampPreview(ctx, canvas.width, canvas.height);
       setHistory([canvas.toDataURL()]);
     };
     img.src = imageDataUrl;
   }, [imageDataUrl]);
 
-  function getPos(e) {
-    const canvas = canvasRef.current;
+  // Initialize signature canvas at high resolution
+  useEffect(() => {
+    const sigCanvas = sigCanvasRef.current;
+    if (!sigCanvas) return;
+    const container = sigCanvas.parentElement;
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    sigCanvas.width = Math.round(container.clientWidth * dpr);
+    sigCanvas.height = SIG_INTERNAL_HEIGHT;
+    const ctx = sigCanvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
+    drawSigPlaceholder(ctx, sigCanvas.width, sigCanvas.height);
+  }, []);
+
+  function drawSigPlaceholder(ctx, w, h) {
+    const s = w / 350;
+    ctx.save();
+    ctx.strokeStyle = '#d1d5db';
+    ctx.lineWidth = 1 * s;
+    ctx.setLineDash([6 * s, 4 * s]);
+    const y = h - 30 * (h / 140);
+    ctx.beginPath();
+    ctx.moveTo(20 * s, y);
+    ctx.lineTo(w - 20 * s, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = `${Math.round(13 * s)}px -apple-system, sans-serif`;
+    ctx.fillText('Sign above the line', 20 * s, h - 10 * (h / 140));
+    ctx.restore();
+  }
+
+  function drawStampPreview(ctx, w, h) {
+    const fontSize = Math.max(11, w * 0.022);
+    const pad = Math.round(fontSize * 0.6);
+    ctx.save();
+    ctx.font = `600 ${fontSize}px -apple-system, sans-serif`;
+    const emailW = ctx.measureText(userEmail).width;
+    const dateW = ctx.measureText(dateStamp).width;
+    const textW = Math.max(emailW, dateW);
+    const gap = Math.round(fontSize * 0.4);
+    const sigPreviewH = Math.round(fontSize * 2);
+    const boxW = textW + pad * 2;
+    const boxH = pad + fontSize + gap + sigPreviewH + gap + fontSize + pad;
+    const margin = Math.round(w * 0.02);
+    const bx = w - boxW - margin;
+    const by = h - boxH - margin;
+    const radius = Math.round(fontSize * 0.4);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.beginPath();
+    ctx.roundRect(bx, by, boxW, boxH, radius);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    let curY = by + pad + fontSize;
+    ctx.fillStyle = '#111827';
+    ctx.font = `600 ${fontSize}px -apple-system, sans-serif`;
+    ctx.fillText(userEmail, bx + pad, curY);
+
+    curY += gap;
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = `italic ${Math.round(fontSize * 0.8)}px -apple-system, sans-serif`;
+    ctx.fillText('[ signature ]', bx + pad, curY + sigPreviewH / 2 + fontSize * 0.2);
+    curY += sigPreviewH;
+
+    curY += Math.round(gap * 0.3);
+    ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+    ctx.beginPath();
+    ctx.moveTo(bx + pad, curY);
+    ctx.lineTo(bx + boxW - pad, curY);
+    ctx.stroke();
+    curY += Math.round(gap * 0.7) + fontSize;
+
+    ctx.fillStyle = '#374151';
+    ctx.font = `600 ${fontSize}px -apple-system, sans-serif`;
+    ctx.fillText(dateStamp, bx + pad, curY);
+
+    ctx.restore();
+  }
+
+  // ── Photo canvas drawing ──
+  function getPos(e, canvas) {
     const rect = canvas.getBoundingClientRect();
     const touch = e.touches?.[0] || e.changedTouches?.[0] || e;
     return {
@@ -550,22 +647,30 @@ function AnnotateScreen({ imageDataUrl, onSave, onBack }) {
     };
   }
 
+  function canvasScale() {
+    const canvas = photoCanvasRef.current;
+    if (!canvas) return 1;
+    const rect = canvas.getBoundingClientRect();
+    return canvas.width / rect.width;
+  }
+
   function startDraw(e) {
     e.preventDefault();
+    const canvas = photoCanvasRef.current;
     if (tool === 'text') {
-      setTextPos(getPos(e));
+      setTextPos(getPos(e, canvas));
       return;
     }
     setIsDrawing(true);
-    const ctx = canvasRef.current.getContext('2d');
-    const pos = getPos(e);
+    const ctx = canvas.getContext('2d');
+    const pos = getPos(e, canvas);
+    const s = canvasScale();
     ctx.beginPath();
     ctx.moveTo(pos.x, pos.y);
     ctx.strokeStyle = color;
-    ctx.lineWidth = tool === 'circle' ? 2 : lineWidth;
+    ctx.lineWidth = (tool === 'circle' ? 2 : lineWidth) * s;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-
     if (tool === 'circle') {
       ctx._circleStart = pos;
     }
@@ -574,9 +679,9 @@ function AnnotateScreen({ imageDataUrl, onSave, onBack }) {
   function draw(e) {
     e.preventDefault();
     if (!isDrawing) return;
-    const ctx = canvasRef.current.getContext('2d');
-    const pos = getPos(e);
-
+    const canvas = photoCanvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const pos = getPos(e, canvas);
     if (tool === 'pen') {
       ctx.lineTo(pos.x, pos.y);
       ctx.stroke();
@@ -586,11 +691,12 @@ function AnnotateScreen({ imageDataUrl, onSave, onBack }) {
   function endDraw(e) {
     e.preventDefault();
     if (!isDrawing && tool !== 'text') return;
-
+    const canvas = photoCanvasRef.current;
     if (tool === 'circle' && isDrawing) {
-      const ctx = canvasRef.current.getContext('2d');
+      const ctx = canvas.getContext('2d');
+      const s = canvasScale();
       const start = ctx._circleStart;
-      const end = getPos(e);
+      const end = getPos(e, canvas);
       const rx = Math.abs(end.x - start.x) / 2;
       const ry = Math.abs(end.y - start.y) / 2;
       const cx = (start.x + end.x) / 2;
@@ -598,44 +704,90 @@ function AnnotateScreen({ imageDataUrl, onSave, onBack }) {
       ctx.beginPath();
       ctx.ellipse(cx, cy, Math.max(rx, 5), Math.max(ry, 5), 0, 0, 2 * Math.PI);
       ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2 * s;
       ctx.stroke();
     }
-
     setIsDrawing(false);
-    const canvas = canvasRef.current;
     setHistory((prev) => [...prev, canvas.toDataURL()]);
   }
 
+  // ── Signature canvas drawing ──
+  function sigGetPos(e) {
+    return getPos(e, sigCanvasRef.current);
+  }
+
+  function sigStart(e) {
+    e.preventDefault();
+    setIsSigning(true);
+    setHasSigned(true);
+    const sigCanvas = sigCanvasRef.current;
+    const rect = sigCanvas.getBoundingClientRect();
+    const sigScale = sigCanvas.width / rect.width;
+    const ctx = sigCanvas.getContext('2d');
+    const pos = sigGetPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 2.5 * sigScale;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }
+
+  function sigMove(e) {
+    e.preventDefault();
+    if (!isSigning) return;
+    const ctx = sigCanvasRef.current.getContext('2d');
+    const pos = sigGetPos(e);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+  }
+
+  function sigEnd(e) {
+    e.preventDefault();
+    setIsSigning(false);
+  }
+
+  function clearSignature() {
+    const sigCanvas = sigCanvasRef.current;
+    const ctx = sigCanvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
+    drawSigPlaceholder(ctx, sigCanvas.width, sigCanvas.height);
+    setHasSigned(false);
+  }
+
+  // ── Annotation helpers ──
   function handleUndo() {
     if (history.length <= 1) return;
     const newHistory = history.slice(0, -1);
     setHistory(newHistory);
     const img = new window.Image();
     img.onload = () => {
-      const ctx = canvasRef.current.getContext('2d');
-      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      const ctx = photoCanvasRef.current.getContext('2d');
+      ctx.clearRect(0, 0, photoCanvasRef.current.width, photoCanvasRef.current.height);
       ctx.drawImage(img, 0, 0);
     };
     img.src = newHistory[newHistory.length - 1];
   }
 
   function handleClear() {
-    if (!imgRef.current || !canvasRef.current) return;
-    const ctx = canvasRef.current.getContext('2d');
-    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    ctx.drawImage(imgRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
-    setHistory([canvasRef.current.toDataURL()]);
+    if (!imgRef.current || !photoCanvasRef.current) return;
+    const canvas = photoCanvasRef.current;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(imgRef.current, 0, 0, canvas.width, canvas.height);
+    drawStampPreview(ctx, canvas.width, canvas.height);
+    setHistory([canvas.toDataURL()]);
   }
 
   function handleTextPlace() {
     if (!textPos || !textInput.trim()) return;
-    const ctx = canvasRef.current.getContext('2d');
-    const fontSize = Math.max(14, canvasRef.current.width * 0.035);
+    const canvas = photoCanvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const fontSize = Math.max(20, canvas.width * 0.028);
     ctx.font = `bold ${fontSize}px -apple-system, sans-serif`;
-    ctx.fillStyle = color;
 
-    const padding = 4;
+    const padding = Math.round(fontSize * 0.3);
     const metrics = ctx.measureText(textInput);
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
     ctx.fillRect(
@@ -644,20 +796,114 @@ function AnnotateScreen({ imageDataUrl, onSave, onBack }) {
       metrics.width + padding * 2,
       fontSize + padding * 2
     );
-
     ctx.fillStyle = color;
     ctx.fillText(textInput, textPos.x, textPos.y);
 
-    setHistory((prev) => [...prev, canvasRef.current.toDataURL()]);
+    setHistory((prev) => [...prev, canvas.toDataURL()]);
     setTextInput('');
     setTextPos(null);
   }
 
-  function handleSave() {
-    if (textPos && textInput.trim()) {
-      handleTextPlace();
+  // ── Accept: composite final PNG with signature box in bottom-right ──
+  function handleAccept() {
+    if (textPos && textInput.trim()) handleTextPlace();
+
+    const photoCanvas = photoCanvasRef.current;
+    const sigCanvas = sigCanvasRef.current;
+
+    const outW = photoCanvas.width;
+    const outH = photoCanvas.height;
+
+    const out = document.createElement('canvas');
+    out.width = outW;
+    out.height = outH;
+    const ctx = out.getContext('2d');
+
+    // Draw annotated photo
+    ctx.drawImage(photoCanvas, 0, 0);
+
+    // ── Signature stamp box in bottom-right corner ──
+    const fontSize = Math.max(16, Math.round(outW * 0.022));
+    const pad = Math.round(fontSize * 0.6);
+    const borderW = Math.max(1, Math.round(outW / 800));
+
+    ctx.font = `600 ${fontSize}px -apple-system, sans-serif`;
+    const emailW = ctx.measureText(userEmail).width;
+    const dateW = ctx.measureText(dateStamp).width;
+    const textMaxW = Math.max(emailW, dateW);
+
+    // Signature drawn area: fit to box width, maintain aspect ratio
+    const sigBoxW = textMaxW + pad * 2;
+    const sigDrawW = sigBoxW - pad * 2;
+    const sigAspect = sigCanvas.width / sigCanvas.height;
+    const sigDrawH = Math.round(sigDrawW / sigAspect);
+
+    // Box layout: [pad] email [gap] signature [gap] date [pad]
+    const gap = Math.round(fontSize * 0.4);
+    const boxW = sigBoxW;
+    const boxH = pad + fontSize + gap + sigDrawH + gap + fontSize + pad;
+    const margin = Math.round(outW * 0.02);
+    const bx = outW - boxW - margin;
+    const by = outH - boxH - margin;
+    const radius = Math.round(fontSize * 0.4);
+
+    // Semi-transparent background
+    ctx.save();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+    ctx.beginPath();
+    ctx.roundRect(bx, by, boxW, boxH, radius);
+    ctx.fill();
+
+    // Border
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.lineWidth = borderW;
+    ctx.stroke();
+    ctx.restore();
+
+    // Email
+    let curY = by + pad + fontSize;
+    ctx.fillStyle = '#111827';
+    ctx.font = `600 ${fontSize}px -apple-system, sans-serif`;
+    ctx.fillText(userEmail, bx + pad, curY);
+
+    // Signature
+    curY += gap;
+    if (hasSigned) {
+      ctx.drawImage(sigCanvas, bx + pad, curY, sigDrawW, sigDrawH);
     }
-    const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.8);
+    curY += sigDrawH;
+
+    // Divider line above date
+    curY += Math.round(gap * 0.3);
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.lineWidth = borderW;
+    ctx.beginPath();
+    ctx.moveTo(bx + pad, curY);
+    ctx.lineTo(bx + boxW - pad, curY);
+    ctx.stroke();
+    curY += Math.round(gap * 0.7);
+
+    // Date
+    curY += fontSize;
+    ctx.fillStyle = '#374151';
+    ctx.font = `600 ${fontSize}px -apple-system, sans-serif`;
+    ctx.fillText(dateStamp, bx + pad, curY);
+
+    const dataUrl = out.toDataURL('image/png');
+
+    // Trigger download to the device
+    out.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `PackingSlip_${dateStamp}_${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }, 'image/png');
+
     onSave(dataUrl);
   }
 
@@ -667,15 +913,21 @@ function AnnotateScreen({ imageDataUrl, onSave, onBack }) {
         <button className="mobile-back-btn" onClick={onBack}>
           &larr; Back
         </button>
-        <span className="mobile-annotate-title">Annotate Packing Slip</span>
-        <button className="mobile-annotate-save" onClick={handleSave}>
-          <Save size={16} /> Done
+        <span className="mobile-annotate-title">Packing Slip</span>
+        <button
+          className="mobile-annotate-save"
+          onClick={handleAccept}
+          disabled={!hasSigned}
+          title={hasSigned ? 'Accept' : 'Please sign first'}
+        >
+          <Check size={16} /> Accept
         </button>
       </div>
 
+      {/* ── Photo with annotation canvas ── */}
       <div className="mobile-annotate-canvas-wrap">
         <canvas
-          ref={canvasRef}
+          ref={photoCanvasRef}
           onTouchStart={startDraw}
           onTouchMove={draw}
           onTouchEnd={endDraw}
@@ -699,74 +951,75 @@ function AnnotateScreen({ imageDataUrl, onSave, onBack }) {
               if (e.key === 'Enter') handleTextPlace();
             }}
           />
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={handleTextPlace}
-          >
+          <button className="btn btn-primary btn-sm" onClick={handleTextPlace}>
             Place
           </button>
         </div>
       )}
 
-      <div className="mobile-annotate-toolbar">
+      {/* ── Annotation toolbar ── */}
+      <div className="mobile-annotate-toolbar mobile-annotate-toolbar--compact">
         <div className="mobile-annotate-tools">
           <button
             className={`mobile-annotate-tool-btn${tool === 'pen' ? ' active' : ''}`}
             onClick={() => setTool('pen')}
-            title="Draw"
           >
-            <Pen size={18} />
+            <Pen size={16} />
           </button>
           <button
             className={`mobile-annotate-tool-btn${tool === 'circle' ? ' active' : ''}`}
             onClick={() => setTool('circle')}
-            title="Circle"
           >
-            <Circle size={18} />
+            <Circle size={16} />
           </button>
           <button
             className={`mobile-annotate-tool-btn${tool === 'text' ? ' active' : ''}`}
             onClick={() => setTool('text')}
-            title="Text"
           >
-            <Type size={18} />
+            <Type size={16} />
           </button>
-
           <div className="mobile-annotate-separator" />
-
-          <button
-            className="mobile-annotate-tool-btn"
-            onClick={handleUndo}
-            title="Undo"
-          >
-            <Undo2 size={18} />
+          <button className="mobile-annotate-tool-btn" onClick={handleUndo}>
+            <Undo2 size={16} />
           </button>
-          <button
-            className="mobile-annotate-tool-btn"
-            onClick={handleClear}
-            title="Clear all"
-          >
-            <Trash2 size={18} />
+          <button className="mobile-annotate-tool-btn" onClick={handleClear}>
+            <Trash2 size={16} />
           </button>
-        </div>
-
-        <div className="mobile-annotate-colors">
+          <div className="mobile-annotate-separator" />
           {PEN_COLORS.map((c) => (
             <button
               key={c}
-              className={`mobile-annotate-color${color === c ? ' active' : ''}`}
+              className={`mobile-annotate-color mobile-annotate-color--sm${color === c ? ' active' : ''}`}
               style={{ background: c }}
               onClick={() => setColor(c)}
             />
           ))}
-          <input
-            type="range"
-            min={1}
-            max={8}
-            value={lineWidth}
-            onChange={(e) => setLineWidth(Number(e.target.value))}
-            className="mobile-annotate-size"
+        </div>
+      </div>
+
+      {/* ── Signature pad ── */}
+      <div className="mobile-sig-section">
+        <div className="mobile-sig-header">
+          <span className="mobile-sig-label">Signature</span>
+          <button className="mobile-sig-clear" onClick={clearSignature}>
+            <Trash2 size={14} /> Clear
+          </button>
+        </div>
+        <div className="mobile-sig-pad-wrap">
+          <canvas
+            ref={sigCanvasRef}
+            onTouchStart={sigStart}
+            onTouchMove={sigMove}
+            onTouchEnd={sigEnd}
+            onMouseDown={sigStart}
+            onMouseMove={sigMove}
+            onMouseUp={sigEnd}
+            className="mobile-sig-canvas"
           />
+        </div>
+        <div className="mobile-sig-meta">
+          <span>{userEmail}</span>
+          <span>{dateStamp}</span>
         </div>
       </div>
     </div>
