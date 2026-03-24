@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { useMobileDetect } from './utils/device';
 import Layout from './components/Layout';
+import MobileLayout from './components/MobileLayout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import PurchaseOrders from './pages/PurchaseOrders';
@@ -11,11 +13,25 @@ import VendorPortal from './pages/VendorPortal';
 import Receiving from './pages/Receiving';
 import Reconciliation from './pages/Reconciliation';
 import DataManagement from './pages/DataManagement';
+import MobileScanReceive from './pages/mobile/MobileScanReceive';
 
 function ProtectedRoutes() {
   const { user } = useAuth();
+  const isMobile = useMobileDetect();
 
   if (!user) return <Navigate to="/login" replace />;
+
+  if (isMobile && user.role === 'coreweave') {
+    return (
+      <Routes>
+        <Route element={<MobileLayout />}>
+          <Route index element={<MobileScanReceive />} />
+          <Route path="receiving" element={<MobileScanReceive />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    );
+  }
 
   if (user.role === 'vendor') {
     return (
