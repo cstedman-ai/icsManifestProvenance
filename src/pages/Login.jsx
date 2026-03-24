@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useMobileDetect } from '../utils/device';
 import { vendors } from '../data/cores/vendors';
-import { Building2, Truck, LogIn, Mail, Lock, Eye, EyeOff, ChevronRight } from 'lucide-react';
+import { Building2, Truck, LogIn, Mail, Lock, Eye, EyeOff, ChevronRight, ScanLine } from 'lucide-react';
 
 export default function Login() {
   const { login } = useAuth();
+  const isMobile = useMobileDetect();
   const [activePanel, setActivePanel] = useState(null);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [email, setEmail] = useState('');
@@ -70,35 +72,45 @@ export default function Login() {
         {!activePanel ? (
           <>
             <h2 className="login-title">Sign in to continue</h2>
-            <p className="login-subtitle">Select your portal to get started</p>
-            <div className="login-cards">
+            <p className="login-subtitle">
+              {isMobile
+                ? 'Sign in to scan and receive shipments'
+                : 'Select your portal to get started'}
+            </p>
+            <div className={`login-cards${isMobile ? ' login-cards--mobile' : ''}`}>
               <button
                 className="login-card"
                 onClick={() => handleCardClick('coreweave')}
               >
                 <div className="login-card-icon login-card-icon--coreweave">
-                  <Building2 size={28} />
+                  {isMobile ? <ScanLine size={28} /> : <Building2 size={28} />}
                 </div>
                 <h3>Coreweave</h3>
-                <p>Internal team access to purchase orders, receiving, reconciliation, and data management.</p>
+                <p>
+                  {isMobile
+                    ? 'Scan pallet QR codes and verify received shipments.'
+                    : 'Internal team access to purchase orders, receiving, reconciliation, and data management.'}
+                </p>
                 <span className="login-card-action">
                   <LogIn size={16} /> Sign in
                 </span>
               </button>
 
-              <button
-                className="login-card"
-                onClick={() => handleCardClick('vendor')}
-              >
-                <div className="login-card-icon login-card-icon--vendor">
-                  <Truck size={28} />
-                </div>
-                <h3>Vendor</h3>
-                <p>Vendor portal for submitting shipment manifests and tracking delivery status.</p>
-                <span className="login-card-action">
-                  <LogIn size={16} /> Sign in
-                </span>
-              </button>
+              {!isMobile && (
+                <button
+                  className="login-card"
+                  onClick={() => handleCardClick('vendor')}
+                >
+                  <div className="login-card-icon login-card-icon--vendor">
+                    <Truck size={28} />
+                  </div>
+                  <h3>Vendor</h3>
+                  <p>Vendor portal for submitting shipment manifests and tracking delivery status.</p>
+                  <span className="login-card-action">
+                    <LogIn size={16} /> Sign in
+                  </span>
+                </button>
+              )}
             </div>
           </>
         ) : activePanel === 'vendor' && !selectedVendor ? (
