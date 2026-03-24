@@ -1794,19 +1794,27 @@ textarea {
   padding: 0.45rem 0.85rem;
   border: none;
   border-radius: 8px;
-  background: var(--primary);
+  background: var(--success, #16a34a);
   color: #fff;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
 }
 
-.mobile-annotate-save:active {
+.mobile-annotate-save:disabled {
+  background: var(--border);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.mobile-annotate-save:not(:disabled):active {
   opacity: 0.85;
 }
 
 .mobile-annotate-canvas-wrap {
-  flex: 1;
+  flex: 1 1 0;
+  min-height: 0;
   overflow: auto;
   display: flex;
   align-items: flex-start;
@@ -1819,6 +1827,8 @@ textarea {
 .mobile-annotate-canvas {
   display: block;
   max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
   border-radius: 4px;
   touch-action: none;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
@@ -1966,6 +1976,81 @@ textarea {
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
+}
+
+/* ─── Compact annotation toolbar ─── */
+.mobile-annotate-toolbar--compact {
+  padding: 0.35rem 0.5rem;
+}
+
+.mobile-annotate-toolbar--compact .mobile-annotate-tools {
+  flex-wrap: wrap;
+  margin-bottom: 0;
+}
+
+.mobile-annotate-color--sm {
+  width: 22px;
+  height: 22px;
+}
+
+/* ─── Signature pad ─── */
+.mobile-sig-section {
+  flex-shrink: 0;
+  padding: 0.5rem 0.75rem 0.75rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+.mobile-sig-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.mobile-sig-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.mobile-sig-clear {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.mobile-sig-clear:active {
+  background: var(--bg-hover);
+}
+
+.mobile-sig-pad-wrap {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.mobile-sig-canvas {
+  display: block;
+  width: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.mobile-sig-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
 }
 
 /* Print styles */
