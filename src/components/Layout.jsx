@@ -7,6 +7,8 @@ import {
   Database,
   Home,
   LogOut,
+  FilePlus2,
+  History,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -20,7 +22,9 @@ const coreweaveNav = [
 ];
 
 const vendorNav = [
-  { to: '/', icon: Truck, label: 'Vendor Portal' },
+  { to: '/', icon: Truck, label: 'Shipment Portal' },
+  { to: '/create-po', icon: FilePlus2, label: 'Create PO' },
+  { to: '/shipment-history', icon: History, label: 'Shipment History' },
 ];
 
 export default function Layout() {

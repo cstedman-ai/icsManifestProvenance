@@ -134,7 +134,11 @@ export default function Login() {
                     className="vendor-select-logo"
                     style={{ background: v.color }}
                   >
-                    {v.logoInitials}
+                    {v.logo ? (
+                      <img src={v.logo} alt={v.shortName} className="vendor-select-logo-img" />
+                    ) : (
+                      v.logoInitials
+                    )}
                   </span>
                   <div className="vendor-select-info">
                     <span className="vendor-select-name">{v.shortName}</span>
@@ -158,7 +162,11 @@ export default function Login() {
                   className="vendor-select-logo vendor-select-logo--sm"
                   style={{ background: selectedVendor.color }}
                 >
-                  {selectedVendor.logoInitials}
+                  {selectedVendor.logo ? (
+                    <img src={selectedVendor.logo} alt={selectedVendor.shortName} className="vendor-select-logo-img" />
+                  ) : (
+                    selectedVendor.logoInitials
+                  )}
                 </span>
               )}
               <h2>

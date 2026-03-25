@@ -7,6 +7,7 @@ const nVidia: Vendor = {
   domain: 'nvidia.com',
   color: '#76B900',
   logoInitials: 'NV',
+  logo: '/assets/icons/vendors/nvidia.svg',
   categories: ['gpu', 'networking', 'dgx-systems'],
   contactEmail: 'enterprise@nvidia.com',
   supportUrl: 'https://www.nvidia.com/en-us/support/enterprise',

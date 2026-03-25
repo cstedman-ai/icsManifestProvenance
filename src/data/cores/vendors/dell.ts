@@ -7,6 +7,7 @@ const dell: Vendor = {
   domain: 'dell.com',
   color: '#007DB8',
   logoInitials: 'DL',
+  logo: '/assets/icons/vendors/dell.svg',
   categories: ['servers', 'storage', 'networking'],
   contactEmail: 'orders@dell.com',
   supportUrl: 'https://www.dell.com/support',

@@ -5,6 +5,7 @@ export interface Vendor {
   domain: string;
   color: string;
   logoInitials: string;
+  logo: string;
   categories: string[];
   contactEmail: string;
   supportUrl: string;

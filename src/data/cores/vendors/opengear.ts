@@ -7,6 +7,7 @@ const opengear: Vendor = {
   domain: 'opengear.com',
   color: '#E8521F',
   logoInitials: 'OG',
+  logo: '/assets/icons/vendors/opengear.svg',
   categories: ['console-servers', 'network-management'],
   contactEmail: 'sales@opengear.com',
   supportUrl: 'https://opengear.com/support',
