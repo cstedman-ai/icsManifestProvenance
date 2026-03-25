@@ -1072,9 +1072,10 @@ textarea {
 .mobile-layout {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
   background: var(--bg);
+  overflow: hidden;
 }
 
 .mobile-header {
@@ -1130,15 +1131,19 @@ textarea {
 
 .mobile-content {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* ─── Scanner Screen ─── */
 .mobile-scanner-page {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
   background: #000;
 }
 
@@ -1285,8 +1290,10 @@ textarea {
 /* ─── Checklist Screen ─── */
 .mobile-checklist-page {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
   background: var(--bg);
 }
 
@@ -1613,10 +1620,12 @@ textarea {
 /* ─── Confirmation Screen ─── */
 .mobile-confirm-page {
   flex: 1;
+  min-height: 0;
   padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  overflow-y: auto;
 }
 
 .mobile-confirm-header {
@@ -1768,6 +1777,8 @@ textarea {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
   background: var(--bg-primary);
 }
 
@@ -1980,12 +1991,18 @@ textarea {
 
 /* ─── Compact annotation toolbar ─── */
 .mobile-annotate-toolbar--compact {
-  padding: 0.35rem 0.5rem;
+  padding: 0.25rem 0.5rem;
 }
 
 .mobile-annotate-toolbar--compact .mobile-annotate-tools {
   flex-wrap: wrap;
+  gap: 0.15rem;
   margin-bottom: 0;
+}
+
+.mobile-annotate-toolbar--compact .mobile-annotate-tool-btn {
+  width: 34px;
+  height: 34px;
 }
 
 .mobile-annotate-color--sm {
@@ -1996,7 +2013,7 @@ textarea {
 /* ─── Signature pad ─── */
 .mobile-sig-section {
   flex-shrink: 0;
-  padding: 0.5rem 0.75rem 0.75rem;
+  padding: 0.35rem 0.75rem 0.5rem;
   border-top: 1px solid var(--border);
   background: var(--bg-secondary);
 }
@@ -2036,11 +2053,13 @@ textarea {
   border-radius: 8px;
   overflow: hidden;
   background: #ffffff;
+  height: 80px;
 }
 
 .mobile-sig-canvas {
   display: block;
   width: 100%;
+  height: 100%;
   touch-action: none;
   cursor: crosshair;
 }
@@ -2048,8 +2067,8 @@ textarea {
 .mobile-sig-meta {
   display: flex;
   justify-content: space-between;
-  margin-top: 0.35rem;
-  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
   color: var(--text-secondary);
 }
 

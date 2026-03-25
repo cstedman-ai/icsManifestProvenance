@@ -25,7 +25,7 @@ import {
 const SCREEN = { SCANNER: 0, ANNOTATE: 1, CHECKLIST: 2, CONFIRM: 3 };
 const PEN_COLORS = ['#dc2626', '#2563eb', '#16a34a', '#000000', '#f59e0b'];
 const MAX_CANVAS_DIM = 2048;
-const SIG_INTERNAL_HEIGHT = 420;
+const SIG_INTERNAL_HEIGHT = 240;
 
 export default function MobileScanReceive() {
   const { state, dispatch } = useApp();
