@@ -7,6 +7,7 @@ const superMicro: Vendor = {
   domain: 'supermicro.com',
   color: '#003DA5',
   logoInitials: 'SM',
+  logo: '/assets/icons/vendors/supermicro.svg',
   categories: ['servers', 'storage', 'gpu-systems'],
   contactEmail: 'sales@supermicro.com',
   supportUrl: 'https://www.supermicro.com/support',

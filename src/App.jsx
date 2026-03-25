@@ -13,6 +13,8 @@ import VendorPortal from './pages/VendorPortal';
 import Receiving from './pages/Receiving';
 import Reconciliation from './pages/Reconciliation';
 import DataManagement from './pages/DataManagement';
+import VendorCreatePO from './pages/VendorCreatePO';
+import VendorShipmentHistory from './pages/VendorShipmentHistory';
 import MobileScanReceive from './pages/mobile/MobileScanReceive';
 
 function ProtectedRoutes() {
@@ -39,6 +41,8 @@ function ProtectedRoutes() {
         <Route element={<Layout />}>
           <Route index element={<VendorPortal />} />
           <Route path="vendor-portal" element={<VendorPortal />} />
+          <Route path="create-po" element={<VendorCreatePO />} />
+          <Route path="shipment-history" element={<VendorShipmentHistory />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
