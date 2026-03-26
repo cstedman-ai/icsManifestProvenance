@@ -1188,6 +1188,29 @@ textarea {
   background: #0f172a;
 }
 
+.mobile-scan-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #451a03;
+  color: #fbbf24;
+  font-size: 0.85rem;
+}
+.mobile-scan-error-banner span {
+  flex: 1;
+}
+.mobile-scan-error-banner button {
+  background: #78350f;
+  color: #fbbf24;
+  border: none;
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .mobile-scanner-toggle {
   display: flex;
   align-items: center;
@@ -2077,6 +2100,192 @@ textarea {
   margin-top: 0.25rem;
   font-size: 0.7rem;
   color: var(--text-secondary);
+}
+
+/* ─── Mobile PO Review screen ─── */
+.mobile-review-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+.mobile-review-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.mobile-review-title h2 {
+  font-size: 1.05rem;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.mobile-review-vendor {
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.mobile-review-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.mobile-review-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.mobile-review-stat-value {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--text-primary);
+}
+
+.mobile-review-stat-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.status-dot {
+  font-size: 0.75rem !important;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-dot--shipped {
+  color: var(--primary);
+}
+
+.status-dot--received {
+  color: var(--success, #16a34a);
+}
+
+.status-dot--issued {
+  color: var(--text-secondary);
+}
+
+.mobile-review-tracking {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+  flex-shrink: 0;
+}
+
+.mobile-review-items {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobile-review-item {
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.mobile-review-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.mobile-review-item-desc {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+.mobile-review-item-qty {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--primary);
+  white-space: nowrap;
+}
+
+.mobile-review-item-pn {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.2rem;
+}
+
+.mobile-review-item-serials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+.mobile-review-serial-tag {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-family: monospace;
+  color: var(--text-secondary);
+}
+
+.mobile-review-photos {
+  padding: 0.5rem 1rem;
+  flex-shrink: 0;
+}
+
+.mobile-review-photos-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.mobile-review-actions {
+  flex-shrink: 0;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+.mobile-btn-accept {
+  background: var(--success, #16a34a);
+  font-size: 1rem;
+  padding: 0.85rem;
+}
+
+.mobile-btn-accept:active:not(:disabled) {
+  opacity: 0.85;
+}
+
+.mobile-btn-accept:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* ─── Search bar ─── */

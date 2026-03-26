@@ -20,9 +20,10 @@ import {
   Type,
   Image as ImageIcon,
   Save,
+  ClipboardList,
 } from 'lucide-react';
 
-const SCREEN = { SCANNER: 0, ANNOTATE: 1, CHECKLIST: 2, CONFIRM: 3 };
+const SCREEN = { SCANNER: 0, ANNOTATE: 1, REVIEW: 2, CHECKLIST: 3, CONFIRM: 4 };
 const PEN_COLORS = ['#dc2626', '#2563eb', '#16a34a', '#000000', '#f59e0b'];
 const MAX_CANVAS_DIM = 2048;
 const SIG_INTERNAL_HEIGHT = 240;
@@ -38,6 +39,7 @@ export default function MobileScanReceive() {
   const [submitted, setSubmitted] = useState(false);
   const [capturedPhotos, setCapturedPhotos] = useState([]);
   const [annotatingPhoto, setAnnotatingPhoto] = useState(null);
+  const [scanError, setScanError] = useState(null);
 
   const loadPO = useCallback(
     (po) => {
@@ -72,13 +74,53 @@ export default function MobileScanReceive() {
         })
       );
       setNotes('');
-      setScreen(SCREEN.CHECKLIST);
+      setScreen(SCREEN.REVIEW);
     },
     [state.shipments]
   );
 
+  function loadFromQR(parsed) {
+    const items = (parsed.items || []).map((item, idx) => ({
+      poItemId: `qr-${idx}`,
+      description: item.desc || item.description || 'Unknown item',
+      partNumber: item.pn || item.partNumber || '',
+      quantityOrdered: item.qtyShipped || item.quantity || 1,
+      quantityShipped: item.qtyShipped || item.quantity || 1,
+      quantityReceived: item.qtyShipped || item.quantity || 1,
+      serialsShipped: item.serials || [],
+      serialStates: (item.serials || []).reduce((acc, s) => {
+        acc[s] = 'pending';
+        return acc;
+      }, {}),
+      condition: 'good',
+      notes: '',
+      expanded: true,
+    }));
+
+    const syntheticPO = {
+      id: `qr-${Date.now()}`,
+      poNumber: parsed.poNumber,
+      vendor: parsed.vendor || 'Unknown',
+      status: 'shipped',
+      createdAt: new Date().toISOString(),
+      items: items.map((i, idx) => ({
+        id: `qr-${idx}`,
+        description: i.description,
+        partNumber: i.partNumber,
+        quantityOrdered: i.quantityOrdered,
+      })),
+    };
+
+    setSelectedPO(syntheticPO);
+    setReceivingItems(items);
+    setScannedData(parsed);
+    setNotes('');
+    setScreen(SCREEN.REVIEW);
+  }
+
   const handleScanResult = useCallback(
     (data) => {
+      setScanError(null);
       try {
         const parsed = JSON.parse(data);
         setScannedData(parsed);
@@ -90,18 +132,22 @@ export default function MobileScanReceive() {
             loadPO(po);
             return;
           }
+          loadFromQR(parsed);
+          return;
         }
       } catch {
-        const po = state.purchaseOrders.find(
-          (p) =>
-            p.poNumber === data.trim() &&
-            (p.status === 'shipped' || p.status === 'received')
-        );
-        if (po) {
-          setScannedData(null);
-          loadPO(po);
-        }
+        // Not JSON — try matching as a PO number directly
       }
+
+      const trimmed = data.trim();
+      const po = state.purchaseOrders.find((p) => p.poNumber === trimmed);
+      if (po) {
+        setScannedData(null);
+        loadPO(po);
+        return;
+      }
+
+      setScanError(`No PO found for "${trimmed.substring(0, 40)}"`);
     },
     [state.purchaseOrders, loadPO]
   );
@@ -118,7 +164,7 @@ export default function MobileScanReceive() {
     ]);
     setAnnotatingPhoto(null);
     if (selectedPO) {
-      setScreen(SCREEN.CHECKLIST);
+      setScreen(SCREEN.REVIEW);
     } else {
       setScreen(SCREEN.SCANNER);
     }
@@ -127,7 +173,7 @@ export default function MobileScanReceive() {
   function handleAnnotationBack() {
     setAnnotatingPhoto(null);
     if (selectedPO) {
-      setScreen(SCREEN.CHECKLIST);
+      setScreen(SCREEN.REVIEW);
     } else {
       setScreen(SCREEN.SCANNER);
     }
@@ -247,6 +293,8 @@ export default function MobileScanReceive() {
         onPhotoCaptured={handlePhotoCaptured}
         purchaseOrders={state.purchaseOrders}
         onSelectPO={loadPO}
+        scanError={scanError}
+        clearScanError={() => setScanError(null)}
       />
     );
   }
@@ -262,6 +310,27 @@ export default function MobileScanReceive() {
     );
   }
 
+  if (screen === SCREEN.REVIEW && selectedPO) {
+    return (
+      <ReviewScreen
+        selectedPO={selectedPO}
+        scannedData={scannedData}
+        receivingItems={receivingItems}
+        user={user}
+        shipments={state.shipments}
+        dispatch={dispatch}
+        capturedPhotos={capturedPhotos}
+        onPhotoCaptured={handlePhotoCaptured}
+        onDetailedReview={() => setScreen(SCREEN.CHECKLIST)}
+        onAccepted={() => {
+          setSubmitted(true);
+          setScreen(SCREEN.CONFIRM);
+        }}
+        onBack={resetForNextScan}
+      />
+    );
+  }
+
   if (screen === SCREEN.CHECKLIST) {
     return (
       <ChecklistScreen
@@ -273,7 +342,7 @@ export default function MobileScanReceive() {
         onUpdateItem={updateItem}
         onToggleSerial={toggleSerial}
         onStepQuantity={stepQuantity}
-        onBack={resetForNextScan}
+        onBack={() => setScreen(SCREEN.REVIEW)}
         onSubmit={handleSubmit}
         capturedPhotos={capturedPhotos}
         onAddPhoto={handlePhotoCaptured}
@@ -301,7 +370,7 @@ export default function MobileScanReceive() {
 
 /* ─── Screen 1: Scanner ─── */
 
-function ScannerScreen({ onScanResult, onPhotoCaptured, purchaseOrders, onSelectPO }) {
+function ScannerScreen({ onScanResult, onPhotoCaptured, purchaseOrders, onSelectPO, scanError, clearScanError }) {
   const [mode, setMode] = useState('camera');
   const [manualInput, setManualInput] = useState('');
   const [cameraError, setCameraError] = useState('');
@@ -433,6 +502,15 @@ function ScannerScreen({ onScanResult, onPhotoCaptured, purchaseOrders, onSelect
           <div className="mobile-scanner-overlay">
             <p>Point camera at pallet QR code</p>
           </div>
+          {scanError && (
+            <div className="mobile-scan-error-banner">
+              <AlertTriangle size={18} />
+              <span>{scanError}</span>
+              <button onClick={() => { clearScanError(); setCameraError(''); setMode('manual'); setTimeout(() => setMode('camera'), 50); }}>
+                Retry
+              </button>
+            </div>
+          )}
           <div className="mobile-scanner-actions">
             <button
               className="mobile-scanner-toggle"
@@ -508,7 +586,285 @@ function ScannerScreen({ onScanResult, onPhotoCaptured, purchaseOrders, onSelect
   );
 }
 
-/* ─── Screen 1.5: Annotate Photo ─── */
+/* ─── Screen 1.5: PO Review ─── */
+
+function ReviewScreen({
+  selectedPO,
+  scannedData,
+  receivingItems,
+  user,
+  shipments,
+  dispatch,
+  capturedPhotos,
+  onPhotoCaptured,
+  onDetailedReview,
+  onAccepted,
+  onBack,
+}) {
+  const [accepting, setAccepting] = useState(false);
+  const receiptRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const totalItems = receivingItems.reduce((s, i) => s + i.quantityShipped, 0);
+
+  function handleFileChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => onPhotoCaptured(ev.target.result);
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  }
+
+  function formatNow() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const mo = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hr = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${y}${mo}${day}:${hr}${min}`;
+  }
+
+  function generateReceiptPNG() {
+    const stamp = formatNow();
+    const canvas = document.createElement('canvas');
+    const W = 800;
+    const lineH = 28;
+    const pad = 32;
+    const headerH = 140;
+    const itemRows = receivingItems.length;
+    const tableHeaderH = 36;
+    const tableRowH = 30;
+    const tableH = tableHeaderH + tableRowH * itemRows;
+    const footerH = 100;
+    const H = headerH + pad + tableH + pad + footerH + pad;
+
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // Background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+
+    // Header bar
+    ctx.fillStyle = '#111827';
+    ctx.fillRect(0, 0, W, headerH);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 28px -apple-system, sans-serif';
+    ctx.fillText('Purchase Order Receipt', pad, 44);
+    ctx.font = '600 18px -apple-system, sans-serif';
+    ctx.fillText(`PO: ${selectedPO.poNumber}`, pad, 76);
+    ctx.fillText(`Vendor: ${selectedPO.vendor}`, pad, 102);
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.font = '14px -apple-system, sans-serif';
+    ctx.fillText(`${totalItems} item(s) across ${itemRows} line(s)`, pad, 128);
+
+    if (scannedData?.tracking) {
+      const trackText = `Tracking: ${scannedData.tracking}`;
+      const tw = ctx.measureText(trackText).width;
+      ctx.fillText(trackText, W - pad - tw, 128);
+    }
+
+    // Item table
+    let y = headerH + pad;
+    ctx.fillStyle = '#f3f4f6';
+    ctx.fillRect(pad, y, W - pad * 2, tableHeaderH);
+    ctx.fillStyle = '#6b7280';
+    ctx.font = 'bold 12px -apple-system, sans-serif';
+    ctx.fillText('ITEM', pad + 8, y + 22);
+    ctx.fillText('PART #', 360, y + 22);
+    ctx.fillText('QTY SHIPPED', 520, y + 22);
+    ctx.fillText('QTY ORDERED', 660, y + 22);
+    y += tableHeaderH;
+
+    ctx.font = '14px -apple-system, sans-serif';
+    receivingItems.forEach((item, i) => {
+      if (i % 2 === 1) {
+        ctx.fillStyle = '#f9fafb';
+        ctx.fillRect(pad, y, W - pad * 2, tableRowH);
+      }
+      ctx.fillStyle = '#111827';
+      const desc =
+        item.description.length > 35
+          ? item.description.substring(0, 35) + '...'
+          : item.description;
+      ctx.fillText(desc, pad + 8, y + 20);
+      ctx.fillStyle = '#6b7280';
+      ctx.fillText(item.partNumber || '—', 360, y + 20);
+      ctx.fillStyle = '#111827';
+      ctx.fillText(String(item.quantityShipped), 540, y + 20);
+      ctx.fillText(String(item.quantityOrdered), 680, y + 20);
+      y += tableRowH;
+    });
+
+    // Footer
+    y += pad;
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad, y);
+    ctx.lineTo(W - pad, y);
+    ctx.stroke();
+    y += 20;
+
+    ctx.fillStyle = '#111827';
+    ctx.font = '600 16px -apple-system, sans-serif';
+    ctx.fillText(`Received by: ${user.email}`, pad, y + lineH);
+    ctx.fillText(`Date/Time: ${stamp}`, pad, y + lineH * 2);
+
+    ctx.fillStyle = '#16a34a';
+    ctx.font = 'bold 16px -apple-system, sans-serif';
+    const checkmark = '✓ ACCEPTED';
+    const cmW = ctx.measureText(checkmark).width;
+    ctx.fillText(checkmark, W - pad - cmW, y + lineH);
+
+    return { canvas, stamp };
+  }
+
+  function handleAccept() {
+    setAccepting(true);
+
+    const latestShipment = shipments
+      .filter((s) => s.poId === selectedPO.id)
+      .sort((a, b) => new Date(b.shippedAt) - new Date(a.shippedAt))[0];
+
+    dispatch({
+      type: 'RECORD_RECEIVING',
+      payload: {
+        poId: selectedPO.id,
+        shipmentId: latestShipment?.id || null,
+        receivedBy: user.email,
+        notes: '',
+        photoCount: capturedPhotos.length,
+        items: receivingItems.map((item) => ({
+          poItemId: item.poItemId,
+          quantityReceived: item.quantityShipped,
+          serialsReceived: item.serialsShipped,
+          condition: 'good',
+          notes: '',
+        })),
+      },
+    });
+
+    const { canvas, stamp } = generateReceiptPNG();
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `PO_Receipt_${selectedPO.poNumber}_${stamp.replace(':', '')}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }, 'image/png');
+
+    onAccepted();
+  }
+
+  return (
+    <div className="mobile-review-page">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+
+      <div className="mobile-review-header">
+        <button className="mobile-back-btn" onClick={onBack}>
+          &larr; Scan
+        </button>
+        <div className="mobile-review-title">
+          <h2>{selectedPO.poNumber}</h2>
+          <span className="mobile-review-vendor">{selectedPO.vendor}</span>
+        </div>
+      </div>
+
+      <div className="mobile-review-summary">
+        <div className="mobile-review-stat">
+          <span className="mobile-review-stat-value">{receivingItems.length}</span>
+          <span className="mobile-review-stat-label">Line Items</span>
+        </div>
+        <div className="mobile-review-stat">
+          <span className="mobile-review-stat-value">{totalItems}</span>
+          <span className="mobile-review-stat-label">Total Qty</span>
+        </div>
+        <div className="mobile-review-stat">
+          <span className={`mobile-review-stat-value status-dot status-dot--${selectedPO.status}`}>
+            {selectedPO.status}
+          </span>
+          <span className="mobile-review-stat-label">Status</span>
+        </div>
+      </div>
+
+      {scannedData?.tracking && (
+        <div className="mobile-review-tracking">
+          Tracking: <strong>{scannedData.tracking}</strong>
+        </div>
+      )}
+
+      <div className="mobile-review-items" ref={receiptRef}>
+        {receivingItems.map((item, idx) => (
+          <div key={idx} className="mobile-review-item">
+            <div className="mobile-review-item-top">
+              <span className="mobile-review-item-desc">{item.description}</span>
+              <span className="mobile-review-item-qty">
+                ×{item.quantityShipped}
+              </span>
+            </div>
+            {item.partNumber && (
+              <span className="mobile-review-item-pn">{item.partNumber}</span>
+            )}
+            {item.serialsShipped.length > 0 && (
+              <div className="mobile-review-item-serials">
+                {item.serialsShipped.map((s, i) => (
+                  <span key={i} className="mobile-review-serial-tag">{s}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {capturedPhotos.length > 0 && (
+        <div className="mobile-review-photos">
+          <span className="mobile-review-photos-label">
+            <ImageIcon size={14} /> {capturedPhotos.length} photo(s) attached
+          </span>
+        </div>
+      )}
+
+      <div className="mobile-review-actions">
+        <button
+          className="btn btn-secondary mobile-btn-full"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Camera size={18} /> Photo Packing Slip
+        </button>
+        <button
+          className="btn btn-secondary mobile-btn-full"
+          onClick={onDetailedReview}
+        >
+          <ClipboardList size={18} /> Detailed Review
+        </button>
+        <button
+          className="btn btn-primary mobile-btn-full mobile-btn-accept"
+          onClick={handleAccept}
+          disabled={accepting}
+        >
+          <PackageCheck size={18} /> Accept & Receive
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Screen 2: Annotate Photo ─── */
 
 function formatDateStamp() {
   const d = new Date();
