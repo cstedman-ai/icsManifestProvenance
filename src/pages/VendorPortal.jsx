@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { QRCodeSVG } from 'qrcode.react';
+import { useAuth } from '../context/AuthContext';
 import { X, Package } from 'lucide-react';
+import PackingSlipLabel, { formatDateTime } from '../lib/cores/exportStandard/PackingSlipLabel';
 
 export default function VendorPortal() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { state, dispatch } = useApp();
+  const { user } = useAuth();
   const [selectedPOId, setSelectedPOId] = useState(
     searchParams.get('poId') || ''
   );
@@ -111,6 +113,10 @@ export default function VendorPortal() {
 
   if (submitted && lastShipment) {
     const qrString = JSON.stringify(lastShipment);
+    const vendorLogo = user?.vendor?.logo;
+    const vendorName = user?.vendor?.shortName || lastShipment.vendor;
+    const printStamp = formatDateTime();
+
     return (
       <div className="page">
         <div className="card success-card">
@@ -122,13 +128,15 @@ export default function VendorPortal() {
             so the receiver can scan it upon delivery.
           </p>
 
-          <div className="qr-section">
-            <QRCodeSVG value={qrString} size={240} level="M" />
-            <p className="text-muted">
-              Contains: PO #{lastShipment.poNumber}, {lastShipment.items.length}{' '}
-              line item(s), tracking: {lastShipment.tracking || 'N/A'}
-            </p>
-          </div>
+          <PackingSlipLabel
+            qrString={qrString}
+            poNumber={lastShipment.poNumber}
+            vendorName={vendorName}
+            vendorLogo={vendorLogo}
+            tracking={lastShipment.tracking}
+            itemCount={lastShipment.items.length}
+            dateTime={printStamp}
+          />
 
           <div className="shipment-summary">
             <h3>Shipment Summary</h3>
@@ -159,7 +167,7 @@ export default function VendorPortal() {
               className="btn btn-primary"
               onClick={() => window.print()}
             >
-              Print QR Code
+              Print QR Label
             </button>
             <button
               className="btn btn-secondary"

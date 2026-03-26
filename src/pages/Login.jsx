@@ -83,7 +83,7 @@ export default function Login() {
                 onClick={() => handleCardClick('coreweave')}
               >
                 <div className="login-card-icon login-card-icon--coreweave">
-                  {isMobile ? <ScanLine size={28} /> : <Building2 size={28} />}
+                  <img src="/assets/icons/CoreWeave/coreWeave.Symbol.White.svg" alt="CoreWeave" className="login-cw-logo" />
                 </div>
                 <h3>Coreweave</h3>
                 <p>
