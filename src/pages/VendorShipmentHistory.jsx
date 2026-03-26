@@ -9,8 +9,10 @@ import {
   Printer,
   Search,
   Clock,
+  X,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import PackingSlipLabel, { formatDateTime } from '../lib/cores/exportStandard/PackingSlipLabel';
 
 export default function VendorShipmentHistory() {
   const { state } = useApp();
@@ -18,6 +20,7 @@ export default function VendorShipmentHistory() {
   const vendorName = user?.vendor?.shortName || user?.vendor?.name || '';
   const [expandedId, setExpandedId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [printModal, setPrintModal] = useState(null);
 
   const vendorPOs = state.purchaseOrders.filter(
     (po) =>
@@ -62,8 +65,17 @@ export default function VendorShipmentHistory() {
   }
 
   function handlePrint(po, shipment) {
-    setExpandedId(po.id);
-    setTimeout(() => window.print(), 200);
+    const qrPayload = buildQRPayload(po, shipment);
+    setPrintModal({
+      qrString: JSON.stringify(qrPayload),
+      poNumber: po.poNumber,
+      vendorName: po.vendor,
+      vendorLogo: user?.vendor?.logo || null,
+      tracking: shipment.trackingNumber || '',
+      itemCount: qrPayload.items.length,
+      items: qrPayload.items,
+      shippedAt: shipment.shippedAt,
+    });
   }
 
   const isExpanded = (id) => expandedId === id;
@@ -224,6 +236,68 @@ export default function VendorShipmentHistory() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {printModal && (
+        <div className="print-modal-overlay" onClick={() => setPrintModal(null)}>
+          <div className="print-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="print-modal-topbar">
+              <h3>Print Preview</h3>
+              <button className="print-modal-close" onClick={() => setPrintModal(null)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="print-modal-content">
+              <PackingSlipLabel
+                qrString={printModal.qrString}
+                poNumber={printModal.poNumber}
+                vendorName={printModal.vendorName}
+                vendorLogo={printModal.vendorLogo}
+                tracking={printModal.tracking}
+                itemCount={printModal.itemCount}
+                dateTime={formatDateTime()}
+              />
+
+              <div className="print-modal-summary">
+                <h4>Shipment Items</h4>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Part #</th>
+                      <th>Qty</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {printModal.items.map((item, i) => (
+                      <tr key={i}>
+                        <td>{item.desc}</td>
+                        <td>{item.pn || '—'}</td>
+                        <td>{item.qtyShipped}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="print-modal-actions">
+              <button
+                className="btn btn-primary"
+                onClick={() => window.print()}
+              >
+                <Printer size={16} /> Print
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setPrintModal(null)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
