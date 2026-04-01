@@ -19,10 +19,14 @@ export default function VendorPortal() {
   const [submitted, setSubmitted] = useState(false);
   const [lastShipment, setLastShipment] = useState(null);
 
+  const vendorName = user?.vendor?.shortName || user?.vendor?.name || '';
+
   const availablePOs = state.purchaseOrders.filter(
-    (po) => po.status === 'issued' || po.status === 'shipped'
+    (po) =>
+      po.vendor === vendorName &&
+      (po.status === 'issued' || po.status === 'shipped')
   );
-  const selectedPO = state.purchaseOrders.find((po) => po.id === selectedPOId);
+  const selectedPO = availablePOs.find((po) => po.id === selectedPOId);
 
   useEffect(() => {
     if (selectedPO) {
