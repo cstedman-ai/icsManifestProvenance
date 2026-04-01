@@ -2679,8 +2679,7 @@ textarea {
 
   .success-card > svg,
   .success-card > h2,
-  .success-card > p,
-  .shipment-summary {
+  .success-card > p {
     display: none !important;
   }
 
