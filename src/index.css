@@ -1820,6 +1820,71 @@ textarea {
   padding: 0.75rem 1rem 1.25rem;
 }
 
+.checklist-sig-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-end;
+  z-index: 1000;
+}
+
+.checklist-sig-panel {
+  width: 100%;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  padding: 1.25rem 1rem 1.5rem;
+}
+
+.checklist-sig-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.checklist-sig-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.checklist-sig-close {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.checklist-sig-email {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0 0 0.5rem;
+}
+
+.checklist-sig-canvas-wrap {
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+  touch-action: none;
+}
+
+.checklist-sig-canvas {
+  display: block;
+  width: 100%;
+  height: 120px;
+  background: #fff;
+  touch-action: none;
+}
+
+.checklist-sig-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 /* ─── Confirmation Screen ─── */
 .mobile-confirm-page {
   flex: 1;

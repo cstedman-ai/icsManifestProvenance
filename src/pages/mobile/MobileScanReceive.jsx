@@ -40,6 +40,8 @@ export default function MobileScanReceive() {
   const [capturedPhotos, setCapturedPhotos] = useState([]);
   const [annotatingPhoto, setAnnotatingPhoto] = useState(null);
   const [scanError, setScanError] = useState(null);
+  const [hasReviewed, setHasReviewed] = useState(false);
+  const [signatureDataUrl, setSignatureDataUrl] = useState(null);
 
   const loadPO = useCallback(
     (po) => {
@@ -284,6 +286,8 @@ export default function MobileScanReceive() {
     setSubmitted(false);
     setCapturedPhotos([]);
     setAnnotatingPhoto(null);
+    setHasReviewed(false);
+    setSignatureDataUrl(null);
   }
 
   if (screen === SCREEN.SCANNER) {
@@ -321,6 +325,8 @@ export default function MobileScanReceive() {
         dispatch={dispatch}
         capturedPhotos={capturedPhotos}
         onPhotoCaptured={handlePhotoCaptured}
+        hasReviewed={hasReviewed}
+        signatureDataUrl={signatureDataUrl}
         onDetailedReview={() => setScreen(SCREEN.CHECKLIST)}
         onAccepted={() => {
           setSubmitted(true);
@@ -342,10 +348,11 @@ export default function MobileScanReceive() {
         onUpdateItem={updateItem}
         onToggleSerial={toggleSerial}
         onStepQuantity={stepQuantity}
-        onBack={() => setScreen(SCREEN.REVIEW)}
+        onBack={(sigDataUrl) => { if (typeof sigDataUrl === 'string') setSignatureDataUrl(sigDataUrl); setHasReviewed(true); setScreen(SCREEN.REVIEW); }}
         onSubmit={handleSubmit}
         capturedPhotos={capturedPhotos}
         onAddPhoto={handlePhotoCaptured}
+        userEmail={user.email}
       />
     );
   }
@@ -597,6 +604,8 @@ function ReviewScreen({
   dispatch,
   capturedPhotos,
   onPhotoCaptured,
+  hasReviewed,
+  signatureDataUrl,
   onDetailedReview,
   onAccepted,
   onBack,
@@ -626,7 +635,7 @@ function ReviewScreen({
     return `${y}${mo}${day}:${hr}${min}`;
   }
 
-  function generateReceiptPNG() {
+  function generateReceiptPNG(sigImage) {
     const stamp = formatNow();
     const canvas = document.createElement('canvas');
     const W = 800;
@@ -637,7 +646,8 @@ function ReviewScreen({
     const tableHeaderH = 36;
     const tableRowH = 30;
     const tableH = tableHeaderH + tableRowH * itemRows;
-    const footerH = 100;
+    const sigH = sigImage ? 100 : 0;
+    const footerH = 100 + sigH;
     const H = headerH + pad + tableH + pad + footerH + pad;
 
     canvas.width = W;
@@ -720,10 +730,23 @@ function ReviewScreen({
     const cmW = ctx.measureText(checkmark).width;
     ctx.fillText(checkmark, W - pad - cmW, y + lineH);
 
+    if (sigImage) {
+      const sigTop = y + lineH * 2 + 16;
+      const maxSigW = 260;
+      const maxSigH = 70;
+      const scale = Math.min(maxSigW / sigImage.width, maxSigH / sigImage.height, 1);
+      const drawW = sigImage.width * scale;
+      const drawH = sigImage.height * scale;
+      ctx.drawImage(sigImage, pad, sigTop, drawW, drawH);
+      ctx.fillStyle = '#9ca3af';
+      ctx.font = '11px -apple-system, sans-serif';
+      ctx.fillText('Signature', pad, sigTop + drawH + 14);
+    }
+
     return { canvas, stamp };
   }
 
-  function handleAccept() {
+  async function handleAccept() {
     setAccepting(true);
 
     const latestShipment = shipments
@@ -748,18 +771,33 @@ function ReviewScreen({
       },
     });
 
-    const { canvas, stamp } = generateReceiptPNG();
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `PO_Receipt_${selectedPO.poNumber}_${stamp.replace(':', '')}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-    }, 'image/png');
+    let sigImage = null;
+    if (signatureDataUrl && typeof signatureDataUrl === 'string') {
+      sigImage = await new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = signatureDataUrl;
+      });
+    }
+
+    const { canvas, stamp } = generateReceiptPNG(sigImage);
+
+    await new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `PO_Receipt_${selectedPO.poNumber}_${stamp.replace(':', '')}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }
+        resolve();
+      }, 'image/png');
+    });
 
     onAccepted();
   }
@@ -855,9 +893,9 @@ function ReviewScreen({
         <button
           className="btn btn-primary mobile-btn-full mobile-btn-accept"
           onClick={handleAccept}
-          disabled={accepting}
+          disabled={accepting || !hasReviewed}
         >
-          <PackageCheck size={18} /> Accept & Receive
+          <PackageCheck size={18} /> {hasReviewed ? 'Accept & Receive' : 'Review Required'}
         </button>
       </div>
     </div>
@@ -1399,8 +1437,72 @@ function ChecklistScreen({
   onSubmit,
   capturedPhotos,
   onAddPhoto,
+  userEmail,
 }) {
   const fileInputRef = useRef(null);
+  const [showSigPanel, setShowSigPanel] = useState(false);
+  const sigRef = useRef(null);
+  const sigDrawing = useRef(false);
+  const sigLastPos = useRef({ x: 0, y: 0 });
+  const [hasSigned, setHasSigned] = useState(false);
+
+  useEffect(() => {
+    if (!showSigPanel || !sigRef.current) return;
+    const canvas = sigRef.current;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }, [showSigPanel]);
+
+  function getSigPos(e) {
+    const canvas = sigRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches ? e.touches[0] : e;
+    return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+  }
+
+  function sigTouchStart(e) {
+    e.preventDefault();
+    sigDrawing.current = true;
+    sigLastPos.current = getSigPos(e);
+  }
+
+  function sigTouchMove(e) {
+    if (!sigDrawing.current) return;
+    e.preventDefault();
+    const pos = getSigPos(e);
+    const ctx = sigRef.current.getContext('2d');
+    ctx.beginPath();
+    ctx.moveTo(sigLastPos.current.x, sigLastPos.current.y);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    sigLastPos.current = pos;
+    if (!hasSigned) setHasSigned(true);
+  }
+
+  function sigTouchEnd() {
+    sigDrawing.current = false;
+  }
+
+  function clearSig() {
+    const canvas = sigRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+    setHasSigned(false);
+  }
 
   function handleFileChange(e) {
     const file = e.target.files?.[0];
@@ -1483,10 +1585,51 @@ function ChecklistScreen({
         >
           <Camera size={18} /> Photo Packing Slip
         </button>
-        <button className="btn btn-primary mobile-btn-full" onClick={onSubmit}>
-          <PackageCheck size={18} /> Review & Submit
+        <button className="btn btn-primary mobile-btn-full" onClick={() => setShowSigPanel(true)}>
+          <PackageCheck size={18} /> Physical Check Completed
         </button>
       </div>
+
+      {showSigPanel && (
+        <div className="checklist-sig-overlay">
+          <div className="checklist-sig-panel">
+            <div className="checklist-sig-header">
+              <h3>Sign to Confirm</h3>
+              <button className="checklist-sig-close" onClick={() => { setShowSigPanel(false); setHasSigned(false); }}>
+                <X size={18} />
+              </button>
+            </div>
+            <p className="checklist-sig-email">{userEmail}</p>
+            <div className="checklist-sig-canvas-wrap">
+              <canvas
+                ref={sigRef}
+                onTouchStart={sigTouchStart}
+                onTouchMove={sigTouchMove}
+                onTouchEnd={sigTouchEnd}
+                onMouseDown={sigTouchStart}
+                onMouseMove={sigTouchMove}
+                onMouseUp={sigTouchEnd}
+                className="checklist-sig-canvas"
+              />
+            </div>
+            <div className="checklist-sig-actions">
+              <button className="btn btn-secondary btn-sm" onClick={clearSig}>
+                <Trash2 size={14} /> Clear
+              </button>
+              <button
+                className="btn btn-primary btn-sm"
+                disabled={!hasSigned}
+                onClick={() => {
+                  const dataUrl = sigRef.current ? sigRef.current.toDataURL('image/png') : null;
+                  onBack(dataUrl);
+                }}
+              >
+                <Check size={14} /> Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
