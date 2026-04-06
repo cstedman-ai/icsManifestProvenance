@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useApp } from '../context/AppContext';
-import { useAuth } from '../context/AuthContext';
+import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../context/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   Package,
@@ -12,7 +12,7 @@ import {
   X,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import PackingSlipLabel, { formatDateTime } from '../lib/cores/exportStandard/PackingSlipLabel';
+import PackingSlipLabel, { formatDateTime } from '../../lib/cores/exportStandard/PackingSlipLabel';
 
 export default function VendorShipmentHistory() {
   const { state } = useApp();
