@@ -812,6 +812,10 @@ textarea {
   animation: fadeIn 0.3s ease;
 }
 
+.login-container:has(.vendor-select-panel) {
+  max-width: 600px;
+}
+
 .login-brand {
   text-align: center;
   margin-bottom: 2.5rem;
@@ -941,6 +945,64 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+}
+
+.vendor-select-panel {
+  max-width: 560px;
+}
+
+.vendor-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.vendor-grid-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0.5rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.vendor-grid-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12);
+  transform: translateY(-2px);
+}
+
+.vendor-grid-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.04em;
+}
+
+.vendor-grid-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.2;
+}
+
+@media (max-width: 480px) {
+  .vendor-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .vendor-select-card {

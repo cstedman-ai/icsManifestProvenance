@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { vendors } from '../data/cores/vendors';
 import { Plus, Trash2, X } from 'lucide-react';
 
 function emptyItem() {
@@ -93,13 +94,18 @@ export default function CreatePO() {
             </div>
             <div className="form-group">
               <label>Vendor *</label>
-              <input
-                type="text"
+              <select
                 value={vendor}
                 onChange={(e) => setVendor(e.target.value)}
-                placeholder="Vendor name"
                 required
-              />
+              >
+                <option value="">-- Select a vendor --</option>
+                {vendors.map((v) => (
+                  <option key={v.id} value={v.shortName}>
+                    {v.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           <div className="form-group">

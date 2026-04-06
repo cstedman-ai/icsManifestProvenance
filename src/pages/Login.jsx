@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useMobileDetect } from '../utils/device';
-import { vendors } from '../data/cores/vendors';
-import { Building2, Truck, LogIn, Mail, Lock, Eye, EyeOff, ChevronRight, ScanLine } from 'lucide-react';
+import { Building2, Truck, LogIn, Mail, Lock, Eye, EyeOff, ScanLine } from 'lucide-react';
+import VendorSelectPanel from './vendors/login.vendorPortal';
 
 export default function Login() {
   const { login } = useAuth();
@@ -114,41 +114,7 @@ export default function Login() {
             </div>
           </>
         ) : activePanel === 'vendor' && !selectedVendor ? (
-          <div className="login-form-panel">
-            <button className="login-back" onClick={handleBack}>
-              &larr; Back
-            </button>
-            <div className="login-form-header login-form-header--vendor">
-              <Truck size={24} />
-              <h2>Vendor Login</h2>
-            </div>
-            <p className="login-vendor-prompt">Select your company</p>
-            <div className="vendor-select-grid">
-              {vendors.map((v) => (
-                <button
-                  key={v.id}
-                  className="vendor-select-card"
-                  onClick={() => handleVendorSelect(v)}
-                >
-                  <span
-                    className="vendor-select-logo"
-                    style={{ background: v.color }}
-                  >
-                    {v.logo ? (
-                      <img src={v.logo} alt={v.shortName} className="vendor-select-logo-img" />
-                    ) : (
-                      v.logoInitials
-                    )}
-                  </span>
-                  <div className="vendor-select-info">
-                    <span className="vendor-select-name">{v.shortName}</span>
-                    <span className="vendor-select-domain">{v.domain}</span>
-                  </div>
-                  <ChevronRight size={16} className="vendor-select-arrow" />
-                </button>
-              ))}
-            </div>
-          </div>
+          <VendorSelectPanel onBack={handleBack} onSelect={handleVendorSelect} />
         ) : showCredentialForm ? (
           <div className="login-form-panel">
             <button className="login-back" onClick={handleBack}>

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useApp } from '../context/AppContext';
-import { useAuth } from '../context/AuthContext';
+import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../context/AuthContext';
 import { X, Package } from 'lucide-react';
-import PackingSlipLabel, { formatDateTime } from '../lib/cores/exportStandard/PackingSlipLabel';
+import PackingSlipLabel, { formatDateTime } from '../../lib/cores/exportStandard/PackingSlipLabel';
 
 export default function VendorPortal() {
   const [searchParams] = useSearchParams();

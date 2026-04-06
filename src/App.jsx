@@ -9,12 +9,12 @@ import Dashboard from './pages/Dashboard';
 import PurchaseOrders from './pages/PurchaseOrders';
 import CreatePO from './pages/CreatePO';
 import PODetail from './pages/PODetail';
-import VendorPortal from './pages/VendorPortal';
+import VendorPortal from './pages/vendors/VendorPortal';
 import Receiving from './pages/Receiving';
 import Reconciliation from './pages/Reconciliation';
 import DataManagement from './pages/DataManagement';
-import VendorCreatePO from './pages/VendorCreatePO';
-import VendorShipmentHistory from './pages/VendorShipmentHistory';
+import VendorCreatePO from './pages/vendors/VendorCreatePO';
+import VendorShipmentHistory from './pages/vendors/VendorShipmentHistory';
 import MobileScanReceive from './pages/mobile/MobileScanReceive';
 
 function ProtectedRoutes() {
