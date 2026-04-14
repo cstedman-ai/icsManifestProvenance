@@ -10,14 +10,15 @@ import {
   FilePlus2,
   History,
   Package,
+  ShoppingCart,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const coreweaveNav = [
   { to: '/', icon: Home, label: 'Dashboard' },
   { to: '/purchase-orders', icon: ClipboardList, label: 'Purchase Orders' },
-  { to: '/vendor-portal', icon: Truck, label: 'Vendor Portal' },
   { to: '/receiving', icon: PackageCheck, label: 'Receiving' },
+  { to: '/catalog', icon: ShoppingCart, label: 'Catalog' },
   { to: '/reconciliation', icon: BarChart3, label: 'Reconciliation' },
   { to: '/data', icon: Database, label: 'Data Management' },
 ];
