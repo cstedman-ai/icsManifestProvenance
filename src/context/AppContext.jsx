@@ -96,6 +96,76 @@ function appReducer(state, action) {
       };
     }
 
+    case 'SET_INVENTORY_STOCK': {
+      const { vendorId, catalogItemId, quantity } = action.payload;
+      const existing = state.vendorInventory.find(
+        (v) => v.vendorId === vendorId && v.catalogItemId === catalogItemId
+      );
+      if (existing) {
+        return {
+          ...state,
+          vendorInventory: state.vendorInventory.map((v) =>
+            v.vendorId === vendorId && v.catalogItemId === catalogItemId
+              ? { ...v, quantity, updatedAt: new Date().toISOString() }
+              : v
+          ),
+        };
+      }
+      return {
+        ...state,
+        vendorInventory: [
+          ...state.vendorInventory,
+          {
+            id: uuidv4(),
+            vendorId,
+            catalogItemId,
+            quantity,
+            updatedAt: new Date().toISOString(),
+          },
+        ],
+      };
+    }
+
+    case 'ADD_CUSTOM_INVENTORY_ITEM': {
+      const item = {
+        id: uuidv4(),
+        vendorId: action.payload.vendorId,
+        catalogItemId: null,
+        custom: true,
+        model: action.payload.model,
+        partNumber: action.payload.partNumber,
+        category: action.payload.category,
+        description: action.payload.description,
+        estimatedCost: action.payload.estimatedCost,
+        quantity: action.payload.quantity,
+        updatedAt: new Date().toISOString(),
+      };
+      return {
+        ...state,
+        vendorInventory: [...state.vendorInventory, item],
+      };
+    }
+
+    case 'UPDATE_CUSTOM_INVENTORY_ITEM': {
+      return {
+        ...state,
+        vendorInventory: state.vendorInventory.map((v) =>
+          v.id === action.payload.id
+            ? { ...v, ...action.payload.updates, updatedAt: new Date().toISOString() }
+            : v
+        ),
+      };
+    }
+
+    case 'REMOVE_INVENTORY_ITEM': {
+      return {
+        ...state,
+        vendorInventory: state.vendorInventory.filter(
+          (v) => v.id !== action.payload
+        ),
+      };
+    }
+
     case 'IMPORT_DB':
       return { ...action.payload };
 
