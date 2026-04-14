@@ -7,6 +7,7 @@ import mellanoxCatalog from './mellanox';
 import lumaOpticsCatalog from './lumaOptics';
 import ulineCatalog from './uline';
 import proficiumCatalog from './proficium';
+import molexCatalog from './molex';
 
 export const catalogItems: CatalogItem[] = [
   ...dellCatalog,
@@ -15,6 +16,7 @@ export const catalogItems: CatalogItem[] = [
   ...lumaOpticsCatalog,
   ...ulineCatalog,
   ...proficiumCatalog,
+  ...molexCatalog,
 ];
 
 export function getCatalogForVendor(vendorId: string): CatalogItem[] {
