@@ -3,11 +3,15 @@ const STORAGE_KEY = 'icsSupreme';
 export function loadDatabase() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const data = JSON.parse(raw);
+      if (!data.vendorInventory) data.vendorInventory = [];
+      return data;
+    }
   } catch {
     // corrupted — reset
   }
-  return { purchaseOrders: [], shipments: [], receivings: [] };
+  return { purchaseOrders: [], shipments: [], receivings: [], vendorInventory: [] };
 }
 
 export function saveDatabase(db) {
@@ -31,6 +35,7 @@ export function importDatabaseFromJSON(file) {
       try {
         const data = JSON.parse(e.target.result);
         if (data.purchaseOrders && data.shipments && data.receivings) {
+          if (!data.vendorInventory) data.vendorInventory = [];
           resolve(data);
         } else {
           reject(new Error('Invalid database format'));

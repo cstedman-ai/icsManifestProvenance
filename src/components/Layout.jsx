@@ -9,6 +9,7 @@ import {
   LogOut,
   FilePlus2,
   History,
+  Package,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -25,6 +26,7 @@ const vendorNav = [
   { to: '/', icon: Truck, label: 'Shipment Portal' },
   { to: '/create-po', icon: FilePlus2, label: 'Create PO' },
   { to: '/shipment-history', icon: History, label: 'Shipment History' },
+  { to: '/inventory', icon: Package, label: 'Inventory' },
 ];
 
 export default function Layout() {
