@@ -13,6 +13,7 @@ import VendorPortal from './pages/vendors/VendorPortal';
 import Receiving from './pages/Receiving';
 import Reconciliation from './pages/Reconciliation';
 import DataManagement from './pages/DataManagement';
+import Catalog from './pages/Catalog';
 import VendorCreatePO from './pages/vendors/VendorCreatePO';
 import VendorShipmentHistory from './pages/vendors/VendorShipmentHistory';
 import VendorInventory from './pages/vendors/VendorInventory';
@@ -58,9 +59,9 @@ function ProtectedRoutes() {
         <Route path="purchase-orders" element={<PurchaseOrders />} />
         <Route path="purchase-orders/new" element={<CreatePO />} />
         <Route path="purchase-orders/:id" element={<PODetail />} />
-        <Route path="vendor-portal" element={<VendorPortal />} />
         <Route path="receiving" element={<Receiving />} />
         <Route path="reconciliation" element={<Reconciliation />} />
+        <Route path="catalog" element={<Catalog />} />
         <Route path="data" element={<DataManagement />} />
       </Route>
     </Routes>
