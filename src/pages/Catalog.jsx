@@ -14,6 +14,7 @@ import {
   Plus,
   Minus,
   ArrowLeft,
+  AlertTriangle,
 } from 'lucide-react';
 import InventoryItemModal from '../components/InventoryItemModal';
 
@@ -102,7 +103,6 @@ export default function Catalog() {
     setCart((prev) => {
       const existing = prev.find((c) => c.inventoryId === item.inventoryId);
       if (existing) {
-        if (existing.quantity >= item.available) return prev;
         return prev.map((c) =>
           c.inventoryId === item.inventoryId
             ? { ...c, quantity: c.quantity + 1 }
@@ -120,9 +120,7 @@ export default function Catalog() {
     }
     setCart((prev) =>
       prev.map((c) =>
-        c.inventoryId === inventoryId
-          ? { ...c, quantity: Math.min(qty, c.available) }
-          : c
+        c.inventoryId === inventoryId ? { ...c, quantity: qty } : c
       )
     );
   }
@@ -451,35 +449,47 @@ export default function Catalog() {
                             )}
                           </div>
                         </div>
-                        <div className="inventory-row-qty">
-                          {inCart > 0 ? (
-                            <>
-                              <button
-                                className="btn btn-icon btn-sm"
-                                onClick={() =>
-                                  updateCartQty(item.inventoryId, inCart - 1)
-                                }
-                              >
-                                <Minus size={14} />
-                              </button>
-                              <span className="catalog-in-cart">{inCart}</span>
-                              <button
-                                className="btn btn-icon btn-sm"
-                                onClick={() =>
-                                  updateCartQty(item.inventoryId, inCart + 1)
-                                }
-                                disabled={inCart >= item.available}
-                              >
-                                <Plus size={14} />
-                              </button>
-                            </>
-                          ) : (
+                        <div className="inventory-row-qty-wrap">
+                          <div className="inventory-row-qty">
                             <button
-                              className="btn btn-secondary btn-sm"
-                              onClick={() => addToCart(item)}
+                              className="btn btn-icon btn-sm"
+                              onClick={() =>
+                                updateCartQty(item.inventoryId, inCart - 1)
+                              }
+                              disabled={inCart <= 0}
                             >
-                              <Plus size={14} /> Add
+                              <Minus size={14} />
                             </button>
+                            <input
+                              type="number"
+                              min="0"
+                              className="inventory-qty-input"
+                              value={inCart}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value) || 0;
+                                if (val <= 0) {
+                                  updateCartQty(item.inventoryId, 0);
+                                } else {
+                                  if (inCart === 0) addToCart(item);
+                                  updateCartQty(item.inventoryId, val);
+                                }
+                              }}
+                            />
+                            <button
+                              className="btn btn-icon btn-sm"
+                              onClick={() => {
+                                if (inCart === 0) addToCart(item);
+                                updateCartQty(item.inventoryId, inCart + 1);
+                              }}
+                            >
+                              <Plus size={14} />
+                            </button>
+                          </div>
+                          {inCart > item.available && (
+                            <div className="catalog-qty-warning">
+                              <AlertTriangle size={12} />
+                              Exceeds stock ({item.available})
+                            </div>
                           )}
                         </div>
                       </div>
