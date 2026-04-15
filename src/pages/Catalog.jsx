@@ -15,6 +15,7 @@ import {
   Minus,
   ArrowLeft,
 } from 'lucide-react';
+import InventoryItemModal from '../components/InventoryItemModal';
 
 export default function Catalog() {
   const { state, dispatch } = useApp();
@@ -28,6 +29,7 @@ export default function Catalog() {
   const [poNumber, setPoNumber] = useState('');
   const [notes, setNotes] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [modalItem, setModalItem] = useState(null);
 
   const selectedVendor = vendors.find((v) => v.id === selectedVendorId);
 
@@ -59,11 +61,13 @@ export default function Catalog() {
         inventoryId: inv.id,
         catalogId: cat.id,
         model: cat.model,
+        manufacturer: cat.manufacturer,
         description: cat.description,
         partNumber: cat.partNumber,
         category: cat.category,
         estimatedCost: cat.estimatedCost,
         specs: cat.specs,
+        links: cat.links,
         available: inv.quantity,
       };
     }).filter(Boolean);
@@ -422,7 +426,10 @@ export default function Catalog() {
                         key={item.inventoryId}
                         className={`inventory-row ${inCart > 0 ? 'inventory-row--selected' : ''}`}
                       >
-                        <div className="inventory-row-info">
+                        <div
+                          className="inventory-row-info inventory-row-clickable"
+                          onClick={() => setModalItem(item)}
+                        >
                           <div className="inventory-row-model">
                             {item.model}
                           </div>
@@ -484,6 +491,15 @@ export default function Catalog() {
           );
         })}
       </div>
+
+      {modalItem && (
+        <InventoryItemModal
+          item={modalItem}
+          vendorName={selectedVendor?.shortName || ''}
+          purchaseOrders={state.purchaseOrders}
+          onClose={() => setModalItem(null)}
+        />
+      )}
     </div>
   );
 }
