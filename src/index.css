@@ -1496,20 +1496,27 @@ textarea {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
   background: var(--bg);
 }
 
 .mobile-checklist-header {
-  position: sticky;
-  top: 48px;
-  z-index: 50;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.mobile-checklist-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .mobile-checklist-header h2 {
@@ -2346,7 +2353,7 @@ textarea {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
   background: var(--bg);
 }
 
@@ -2358,6 +2365,15 @@ textarea {
   border-bottom: 1px solid var(--border);
   background: var(--bg-secondary);
   flex-shrink: 0;
+  z-index: 10;
+}
+
+.mobile-review-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .mobile-review-title h2 {

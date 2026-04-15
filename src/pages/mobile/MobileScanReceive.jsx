@@ -823,6 +823,7 @@ function ReviewScreen({
         </div>
       </div>
 
+      <div className="mobile-review-scroll">
       <div className="mobile-review-summary">
         <div className="mobile-review-stat">
           <span className="mobile-review-stat-value">{receivingItems.length}</span>
@@ -897,6 +898,7 @@ function ReviewScreen({
         >
           <PackageCheck size={18} /> {hasReviewed ? 'Accept & Receive' : 'Review Required'}
         </button>
+      </div>
       </div>
     </div>
   );
@@ -1537,6 +1539,7 @@ function ChecklistScreen({
         </div>
       </div>
 
+      <div className="mobile-checklist-scroll">
       <div className="mobile-checklist">
         {receivingItems.map((item, idx) => (
           <ChecklistItem
@@ -1588,6 +1591,7 @@ function ChecklistScreen({
         <button className="btn btn-primary mobile-btn-full" onClick={() => setShowSigPanel(true)}>
           <PackageCheck size={18} /> Physical Check Completed
         </button>
+      </div>
       </div>
 
       {showSigPanel && (
