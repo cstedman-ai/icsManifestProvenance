@@ -16,6 +16,7 @@ import {
   getCatalogForVendor,
   categoryLabels,
 } from '../../data/cores/catalog';
+import InventoryItemModal from '../../components/InventoryItemModal';
 
 export default function VendorInventory() {
   const { state, dispatch } = useApp();
@@ -46,6 +47,7 @@ export default function VendorInventory() {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedCategories, setExpandedCategories] = useState({});
   const [showAddForm, setShowAddForm] = useState(false);
+  const [modalItem, setModalItem] = useState(null);
   const [newItem, setNewItem] = useState({
     model: '',
     partNumber: '',
@@ -313,7 +315,10 @@ export default function VendorInventory() {
                     const qty = getStock(item.id);
                     return (
                       <div key={item.id} className="inventory-row">
-                        <div className="inventory-row-info">
+                        <div
+                          className="inventory-row-info inventory-row-clickable"
+                          onClick={() => setModalItem(item)}
+                        >
                           <div className="inventory-row-model">
                             {item.model}
                           </div>
@@ -385,7 +390,10 @@ export default function VendorInventory() {
               <div className="inventory-items">
                 {customItems.map((item) => (
                   <div key={item.id} className="inventory-row">
-                    <div className="inventory-row-info">
+                    <div
+                      className="inventory-row-info inventory-row-clickable"
+                      onClick={() => setModalItem({ ...item, custom: true })}
+                    >
                       <div className="inventory-row-model">{item.model}</div>
                       <div className="inventory-row-desc">
                         {item.description}
@@ -445,6 +453,15 @@ export default function VendorInventory() {
           </div>
         )}
       </div>
+
+      {modalItem && (
+        <InventoryItemModal
+          item={modalItem}
+          vendorName={vendorName}
+          purchaseOrders={state.purchaseOrders}
+          onClose={() => setModalItem(null)}
+        />
+      )}
     </div>
   );
 }

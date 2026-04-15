@@ -11,6 +11,10 @@ const dellCatalog: CatalogItem[] = [
     estimatedCost: '$350,000.00',
     specs: '6U | 2× Xeon | 8× H100 SXM5 80GB | DDR5 up to 4TB | ~10–11.5 kW',
     vendorIds: ['dell'],
+    links: {
+      productPage: 'https://www.dell.com/en-us/shop/ipovw/poweredge-xe9680',
+      datasheet: 'https://www.delltechnologies.com/asset/en-us/products/servers/technical-support/poweredge-xe9680-spec-sheet.pdf',
+    },
   },
   {
     id: 'dell-xe9680-h200',
@@ -22,6 +26,10 @@ const dellCatalog: CatalogItem[] = [
     estimatedCost: '$400,000.00',
     specs: '6U | 2× Xeon | 8× H200 SXM5 | DDR5 | ~11.5–12.5 kW',
     vendorIds: ['dell'],
+    links: {
+      productPage: 'https://www.dell.com/en-us/shop/ipovw/poweredge-xe9680',
+      datasheet: 'https://www.delltechnologies.com/asset/en-us/products/servers/technical-support/poweredge-xe9680-spec-sheet.pdf',
+    },
   },
   {
     id: 'dell-xe9712',
@@ -33,6 +41,10 @@ const dellCatalog: CatalogItem[] = [
     estimatedCost: '$120,000.00',
     specs: '1U sled | Grace CPU + Blackwell GB200 | LPDDR5X | Liquid cooled',
     vendorIds: ['dell'],
+    links: {
+      productPage: 'https://www.dell.com/en-us/shop/ipovw/poweredge-xe9712',
+      datasheet: 'https://www.delltechnologies.com/asset/en-us/products/servers/technical-support/poweredge-xe-ai-spec-sheet.pdf',
+    },
   },
   {
     id: 'dell-cabinet-44u',
@@ -44,6 +56,9 @@ const dellCatalog: CatalogItem[] = [
     estimatedCost: '$3,500.00',
     specs: '44U | EIA/IEC standard | Cable management + security',
     vendorIds: ['dell'],
+    links: {
+      productPage: 'https://www.dell.com/en-us/shop/netshelter-4-post-open-frame-rack-44u-12-24-threaded-holes/apd/a3707707/power-cooling-data-center-infrastructure',
+    },
   },
 ];
 
