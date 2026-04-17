@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../context/AppContext';
-import { vendors } from '../data/cores/vendors';
-import { catalogItems, categoryLabels } from '../data/cores/catalog';
+import { useApp } from '../../context/AppContext';
+import { vendors } from '../../data/cores/vendors';
+import { catalogItems, categoryLabels } from '../../data/cores/catalog';
 import {
   ShoppingCart,
   ChevronDown,
@@ -16,13 +16,14 @@ import {
   ArrowLeft,
   AlertTriangle,
 } from 'lucide-react';
-import InventoryItemModal from '../components/InventoryItemModal';
+import InventoryItemModal from '../../components/InventoryItemModal';
 
 export default function Catalog() {
   const { state, dispatch } = useApp();
   const navigate = useNavigate();
 
   const [selectedVendorId, setSelectedVendorId] = useState('');
+  const [vendorFilter, setVendorFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedCategories, setExpandedCategories] = useState({});
   const [cart, setCart] = useState([]);
@@ -193,6 +194,16 @@ export default function Catalog() {
     );
   }
 
+  const filteredVendors = useMemo(() => {
+    if (!vendorFilter) return vendors;
+    const term = vendorFilter.toLowerCase();
+    return vendors.filter(
+      (v) =>
+        v.name.toLowerCase().includes(term) ||
+        v.shortName.toLowerCase().includes(term),
+    );
+  }, [vendorFilter]);
+
   if (!selectedVendorId) {
     return (
       <div className="page">
@@ -205,8 +216,23 @@ export default function Catalog() {
           </div>
         </div>
 
+        <div className="catalog-vendor-filter">
+          <Search size={16} />
+          <input
+            type="text"
+            value={vendorFilter}
+            onChange={(e) => setVendorFilter(e.target.value)}
+            placeholder="Filter vendors…"
+          />
+        </div>
+
         <div className="catalog-vendor-grid">
-          {vendors.map((v) => {
+          {filteredVendors.length === 0 && (
+            <p className="text-muted" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem 0' }}>
+              No vendors match "{vendorFilter}"
+            </p>
+          )}
+          {filteredVendors.map((v) => {
             const stockCount = state.vendorInventory.filter(
               (inv) => inv.vendorId === v.id && inv.quantity > 0
             ).length;

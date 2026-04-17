@@ -1,0 +1,61 @@
+import type { CatalogItem } from './types';
+
+const seagateCatalog: CatalogItem[] = [
+  {
+    id: 'seagate-st4000nm0023',
+    model: 'Seagate Constellation ST3000NM0023 3TB 7.2K SAS 6Gb/S 3.5inch HDD Dell OEM',
+    manufacturer: 'Seagate',
+    category: 'server',
+    description: 'Seagate Constellation ST3000NM0023 3TB 7.2K SAS 6Gb/S 3.5inch HDD Dell OEM',
+    partNumber: 'ST4000NM0023',
+    estimatedCost: '$42.00',
+    specs: 'Server Component | UOM: Eaches',
+    vendorIds: ["seagate"],
+  },
+  {
+    id: 'seagate-st18000nm002j',
+    model: 'Seagate Exos X18 18TB SATA 6Gb/s 3.5inch Hard Drive',
+    manufacturer: 'Seagate',
+    category: 'server',
+    description: 'Seagate Exos X18 18TB SATA 6Gb/s 3.5inch Hard Drive',
+    partNumber: 'ST18000NM002J',
+    estimatedCost: '$400.00',
+    specs: 'Server Component | UOM: Eaches',
+    vendorIds: ["seagate"],
+  },
+  {
+    id: 'seagate-st14000nm000j',
+    model: 'Seagate Exos X18 14 TB Hard Drive - Internal - SATA (SATA/600)',
+    manufacturer: 'Seagate',
+    category: 'server',
+    description: 'Seagate Exos X18 14 TB Hard Drive - Internal - SATA (SATA/600)',
+    partNumber: 'ST14000NM000J',
+    estimatedCost: '$249.00',
+    specs: 'Server Component | UOM: Eaches',
+    vendorIds: ["seagate"],
+  },
+  {
+    id: 'seagate-st1000nx0423',
+    model: 'Seagate 1TB Enterprise Capacity 2.5 Internal Hard Disk Drive SATA 6.0Gb/s 7200 R',
+    manufacturer: 'Seagate',
+    category: 'server',
+    description: 'Seagate 1TB Enterprise Capacity 2.5 Internal Hard Disk Drive SATA 6.0Gb/s 7200 RPM 128MB Cache',
+    partNumber: 'ST1000NX0423',
+    estimatedCost: '$218.00',
+    specs: 'Server Component | UOM: Eaches',
+    vendorIds: ["seagate"],
+  },
+  {
+    id: 'seagate-1fn102-002',
+    model: 'Seagate Enterprise Capacity 1TB 7.2K 6Gbps SATA 2.5\'\' Hard Drive',
+    manufacturer: 'Seagate',
+    category: 'server',
+    description: 'Seagate Enterprise Capacity 1TB 7.2K 6Gbps SATA 2.5\'\' Hard Drive',
+    partNumber: '1FN102-002',
+    estimatedCost: '$284.00',
+    specs: 'Server Component | UOM: Eaches',
+    vendorIds: ["seagate"],
+  },
+];
+
+export default seagateCatalog;

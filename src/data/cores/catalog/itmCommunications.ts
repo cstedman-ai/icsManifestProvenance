@@ -1,0 +1,61 @@
+import type { CatalogItem } from './types';
+
+const itmCommunicationsCatalog: CatalogItem[] = [
+  {
+    id: 'itmcommunications-mino6a-2m',
+    model: 'CommScope MiNo6A Patch Lead - Cat6A U/UTP Slimline White - 2m',
+    manufacturer: 'ITM Communications',
+    category: 'cable',
+    description: 'CommScope MiNo6A Patch Lead - Cat6A U/UTP Slimline White - 2m',
+    partNumber: 'MiNo6A-2M',
+    estimatedCost: '$16.63',
+    specs: 'Cabling | UOM: Eaches',
+    vendorIds: ["itmCommunications"],
+  },
+  {
+    id: 'itmcommunications-mino6a-3m',
+    model: 'CommScope MiNo6A Patch Lead - Cat6A U/UTP Slimline White - 3m',
+    manufacturer: 'ITM Communications',
+    category: 'cable',
+    description: 'CommScope MiNo6A Patch Lead - Cat6A U/UTP Slimline White - 3m',
+    partNumber: 'MiNo6A-3M',
+    estimatedCost: '$19.70',
+    specs: 'Cabling | UOM: Eaches',
+    vendorIds: ["itmCommunications"],
+  },
+  {
+    id: 'itmcommunications-mino6a-4m',
+    model: 'CommScope MiNo6A Patch Lead - Cat6A U/UTP Slimline White - 4m',
+    manufacturer: 'ITM Communications',
+    category: 'cable',
+    description: 'CommScope MiNo6A Patch Lead - Cat6A U/UTP Slimline White - 4m',
+    partNumber: 'MiNo6A-4M',
+    estimatedCost: '$22.80',
+    specs: 'Cabling | UOM: Eaches',
+    vendorIds: ["itmCommunications"],
+  },
+  {
+    id: 'itmcommunications-mino6a-5m',
+    model: 'CommScope MiNo6A Patch Lead - Cat6A U/UTP Slimline White - 5m',
+    manufacturer: 'ITM Communications',
+    category: 'cable',
+    description: 'CommScope MiNo6A Patch Lead - Cat6A U/UTP Slimline White - 5m',
+    partNumber: 'MiNo6A-5M',
+    estimatedCost: '$25.94',
+    specs: 'Cabling | UOM: Eaches',
+    vendorIds: ["itmCommunications"],
+  },
+  {
+    id: 'itmcommunications-mino6a-7m',
+    model: 'CommScope MiNo6A Patch Lead - Cat6A U/UTP Slimline White - 7m',
+    manufacturer: 'ITM Communications',
+    category: 'cable',
+    description: 'CommScope MiNo6A Patch Lead - Cat6A U/UTP Slimline White - 7m',
+    partNumber: 'MiNo6A-7M',
+    estimatedCost: '$32.16',
+    specs: 'Cabling | UOM: Eaches',
+    vendorIds: ["itmCommunications"],
+  },
+];
+
+export default itmCommunicationsCatalog;

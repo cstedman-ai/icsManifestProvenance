@@ -948,61 +948,142 @@ textarea {
 }
 
 .vendor-select-panel {
-  max-width: 560px;
+  max-width: 480px;
 }
 
-.vendor-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
+.vendor-search-dropdown {
+  position: relative;
+  width: 100%;
 }
 
-.vendor-grid-card {
+.vendor-search-input-wrap {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding: 1rem 0.5rem;
-  background: var(--surface);
+  padding: 0.65rem 0.85rem;
   border: 2px solid var(--border);
   border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.15s;
+  background: var(--surface);
+  cursor: text;
+  transition: border-color 0.15s;
+}
+
+.vendor-search-input-wrap:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.vendor-search-icon {
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+.vendor-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.95rem;
+  color: var(--text);
   font-family: inherit;
 }
 
-.vendor-grid-card:hover {
-  border-color: var(--primary);
-  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12);
-  transform: translateY(-2px);
+.vendor-search-input::placeholder {
+  color: var(--text-light);
 }
 
-.vendor-grid-icon {
-  width: 44px;
-  height: 44px;
+.vendor-search-chevron {
+  color: var(--text-light);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.vendor-search-chevron--open {
+  transform: rotate(180deg);
+}
+
+.vendor-search-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 2px solid var(--border);
   border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  list-style: none;
+  padding: 0.35rem;
+  margin: 0;
+  z-index: 100;
+}
+
+.vendor-search-empty {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.88rem;
+}
+
+.vendor-search-option {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.1s;
+}
+
+.vendor-search-option:hover {
+  background: rgba(37, 99, 235, 0.07);
+}
+
+.vendor-search-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: #fff;
   letter-spacing: 0.04em;
 }
 
-.vendor-grid-name {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text);
-  text-align: center;
-  line-height: 1.2;
+.vendor-search-badge .vendor-select-logo-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
 }
 
-@media (max-width: 480px) {
-  .vendor-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+.vendor-search-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.vendor-search-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vendor-search-short {
+  font-size: 0.75rem;
+  color: var(--text-light);
 }
 
 .vendor-select-card {
@@ -3156,6 +3237,42 @@ textarea {
 }
 
 /* ─── Catalog Page ─── */
+
+.catalog-vendor-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  margin-bottom: 1rem;
+  transition: border-color 0.15s;
+}
+
+.catalog-vendor-filter:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.catalog-vendor-filter svg {
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+.catalog-vendor-filter input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.95rem;
+  color: var(--text);
+  font-family: inherit;
+}
+
+.catalog-vendor-filter input::placeholder {
+  color: var(--text-light);
+}
 
 .catalog-vendor-grid {
   display: grid;
