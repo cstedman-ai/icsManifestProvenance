@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../context/AppContext';
-import { vendors } from '../data/cores/vendors';
+import { useApp } from '../../context/AppContext';
+import { vendors } from '../../data/cores/vendors';
 import { Plus, Trash2, X } from 'lucide-react';
 
 function emptyItem() {

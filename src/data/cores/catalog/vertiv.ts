@@ -1,0 +1,61 @@
+import type { CatalogItem } from './types';
+
+const vertivCatalog: CatalogItem[] = [
+  {
+    id: 'vertiv-xdu100-rm100',
+    model: 'SYS-821GE-TNHR-22-CI061* 2x Intel 8562Y+ 32x 64GB DDR5 8 x SSDPF2KX076T1OS 2 x H',
+    manufacturer: 'Vertiv',
+    category: 'other',
+    description: 'SYS-821GE-TNHR-22-CI061* 2x Intel 8562Y+ 32x 64GB DDR5 8 x SSDPF2KX076T1OS 2 x HDS-MMN-MTFDKBG1T9TFR-15 1 x 900-9D3B6-00CV-AA0 8 x MCX75310AAS-NEAT 1 x Nvidia H200 BB',
+    partNumber: 'XDU100',
+    estimatedCost: '',
+    specs: 'CDU | UOM: Eaches',
+    vendorIds: ["vertiv"],
+  },
+  {
+    id: 'vertiv-cdu-4ru-02',
+    model: 'Vertiv In-Rack CDU XDU100',
+    manufacturer: 'Vertiv',
+    category: 'other',
+    description: 'Vertiv In-Rack CDU XDU100',
+    partNumber: 'XDU100',
+    estimatedCost: '$39,024.00',
+    specs: 'Machinery and Equipment | UOM: Eaches',
+    vendorIds: ["vertiv"],
+  },
+  {
+    id: 'vertiv-cdu-ipsl-01',
+    model: 'Vertiv ADX - IPSL104-400 Redfish Appliance & ADX - IPPS power supply for redfish',
+    manufacturer: 'Vertiv',
+    category: 'other',
+    description: 'Vertiv ADX - IPSL104-400 Redfish Appliance & ADX - IPPS power supply for redfish',
+    partNumber: 'CDU-IPSL-01',
+    estimatedCost: '',
+    specs: 'Machinery and Equipment | UOM: Eaches',
+    vendorIds: ["vertiv"],
+  },
+  {
+    id: 'vertiv-vp5n30as',
+    model: '30 AMP – 240/415 WYE – 17.2 KW',
+    manufacturer: 'Vertiv',
+    category: 'pdu',
+    description: '30 AMP – 240/415 WYE – 17.2 KW',
+    partNumber: 'MNS5MGW1-36CF13-3PS56B0A10-S-A',
+    estimatedCost: '$1,480.26',
+    specs: 'PDUs | UOM: Eaches',
+    vendorIds: ["vertiv"],
+  },
+  {
+    id: 'vertiv-cdu-sc-01',
+    model: 'XDU070A0K31020 "XDU070 without FD83" Containing: 1.1 AC00006-10 "WATER DETECTION',
+    manufacturer: 'Vertiv',
+    category: 'other',
+    description: 'XDU070A0K31020 "XDU070 without FD83" Containing: 1.1 AC00006-10 "WATER DETECTION 10M" Qty 1 1.2 AC00048-53 "HOSE SET 9.8FT (3.0M) 1.5"" SANITARY FLANGE" Qty 1 1.3 WI-10HR4 "Warranty Inspection" Qty 1 1.4 1WLTHERMLAB-H-EBS "WarrantyLaborLWCoverageH" Qty 1 1.5 VRTLC-L2 "L2 - Delivery, QA/QC, Installation Assembly" Qty 1 1.6 VRTLC-L3 "L3 - Start-up and Site Acceptance Testing" Qty 1 1.7 XDU2PW "2nd year parts warranty" Qty 1 1.8 XDU070YM "1PM BASIC 8X5 XDU070" Qty 1 1.9 XDU070YK "2PM ESSENTIAL XDU070" Qty 1 1.10 THERMCXL2 "Cx Level 2 & Support for Site Acceptance Inspection" Qty 1 1.11 THERMCXL3 "Cx Level 3 & Support for Start-up" Qty 1 1.12 PROJMGMT_LGPROJ "Large Project Project Management" Qty 1',
+    partNumber: 'XDU070A0K31020',
+    estimatedCost: '$90,570.09',
+    specs: 'CDU | Serialized | UOM: Eaches',
+    vendorIds: ["vertiv"],
+  },
+];
+
+export default vertivCatalog;

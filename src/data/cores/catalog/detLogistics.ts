@@ -1,0 +1,61 @@
+import type { CatalogItem } from './types';
+
+const detLogisticsCatalog: CatalogItem[] = [
+  {
+    id: 'detlogistics-ecd17020047',
+    model: 'GB300 MGX PSU, 68mm 5.5kW',
+    manufacturer: 'DET Logistics',
+    category: 'other',
+    description: 'GB300 MGX PSU, 68mm 5.5kW',
+    partNumber: 'ECD17020047',
+    estimatedCost: '$0.00',
+    specs: 'Consumables and Misc. | UOM: Eaches',
+    vendorIds: ["detLogistics"],
+  },
+  {
+    id: 'detlogistics-ecd68000085',
+    model: 'GB300 MGX shelf. 1RU Shelf 19" (Left input; L bracket, 744mm, match Rack v1.1)',
+    manufacturer: 'DET Logistics',
+    category: 'other',
+    description: 'GB300 MGX shelf. 1RU Shelf 19" (Left input; L bracket, 744mm, match Rack v1.1)',
+    partNumber: 'ECD68000085',
+    estimatedCost: '$0.00',
+    specs: 'Consumables and Misc. | UOM: Eaches',
+    vendorIds: ["detLogistics"],
+  },
+  {
+    id: 'detlogistics-ecd70000031',
+    model: 'GB300 MGX PMC, common',
+    manufacturer: 'DET Logistics',
+    category: 'other',
+    description: 'GB300 MGX PMC, common',
+    partNumber: 'ECD70000031',
+    estimatedCost: '$0.00',
+    specs: 'Consumables and Misc. | UOM: Eaches',
+    vendorIds: ["detLogistics"],
+  },
+  {
+    id: 'detlogistics-lchd124a4qa',
+    model: 'CDU L-L GEN3',
+    manufacturer: 'DET Logistics',
+    category: 'other',
+    description: 'CDU L-L GEN3',
+    partNumber: 'LCHD124A4QA',
+    estimatedCost: '$12,000.00',
+    specs: 'CDU | Serialized | UOM: Eaches',
+    vendorIds: ["detLogistics"],
+  },
+  {
+    id: 'detlogistics-pse048t-ac',
+    model: '48x POE Injecter AC Power Model',
+    manufacturer: 'DET Logistics',
+    category: 'other',
+    description: '48x POE Injecter AC Power Model',
+    partNumber: 'PSE048T-AC',
+    estimatedCost: '$4,846.00',
+    specs: 'CDU | UOM: Eaches',
+    vendorIds: ["detLogistics"],
+  },
+];
+
+export default detLogisticsCatalog;

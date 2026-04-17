@@ -1,8 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
-import { useApp } from '../context/AppContext';
-import { reconcilePO, getOverallPOStatus } from '../utils/reconcile';
+import { useApp } from '../../context/AppContext';
+import { reconcilePO, getOverallPOStatus } from '../../utils/reconcile';
 import { QRCodeSVG } from 'qrcode.react';
-import StatusBadge from '../components/StatusBadge';
+import StatusBadge from '../../components/StatusBadge';
 import { ArrowLeft, Printer } from 'lucide-react';
 
 export default function PODetail() {
